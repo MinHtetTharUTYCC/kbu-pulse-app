@@ -58,14 +58,17 @@ function renderLightbox() {
         overlay.className = 'lightbox-overlay';
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) closeLightbox();
+            if (e.target.closest('.lightbox-close')) closeLightbox();
+            if (e.target.closest('.lightbox-prev')) navigateLightbox(-1);
+            if (e.target.closest('.lightbox-next')) navigateLightbox(1);
         });
         document.body.appendChild(overlay);
     }
     overlay.innerHTML = `
-        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
-        <button class="lightbox-nav lightbox-prev" onclick="navigateLightbox(-1)">&#8249;</button>
+        <button class="lightbox-close">&times;</button>
+        <button class="lightbox-nav lightbox-prev">&#8249;</button>
         <img class="lightbox-img" src="${lightboxImages[lightboxIndex]}" alt="Image ${lightboxIndex + 1}">
-        <button class="lightbox-nav lightbox-next" onclick="navigateLightbox(1)">&#8250;</button>
+        <button class="lightbox-nav lightbox-next">&#8250;</button>
         <div class="lightbox-counter">${lightboxIndex + 1} / ${lightboxImages.length}</div>
     `;
     overlay.classList.add('lightbox-show');
