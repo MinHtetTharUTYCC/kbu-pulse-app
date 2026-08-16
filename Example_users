@@ -1,0 +1,7 @@
+const USERS = [
+    { email: 'alice@ms.kbu.ac.th', password: 'password123'},
+    { email: 'bob@ms.kbu.ac.th', password: 'password123'},
+    { email: 'charlie@ms.kbu.ac.th', password: 'password123' },
+    { email: 'diana@ms.kbu.ac.th', password: 'password123' },
+    { email: 'eve@ms.kbu.ac.th', password: 'password123' },
+]
