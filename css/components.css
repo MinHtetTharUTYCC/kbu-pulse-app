@@ -1,0 +1,70 @@
+/* ===== Bottom Navbar (Fixed) ===== */
+
+/* Navbar container - fixed at bottom */
+.navbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    z-index: 100;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+/* Navbar items - 4 equally spaced */
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.125rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 0.5rem 0.75rem;
+    min-width: 48px;
+    font-size: 0.75rem;
+    transition: color var(--transition);
+}
+
+.nav-item.active { color: var(--primary); }
+
+.nav-item svg {
+    width: 24px;
+    height: 24px;
+    margin-bottom: 2px;
+}
+
+/* Hover state */
+.nav-item:hover { color: var(--primary-dark); }
+
+/* Active state - primary color */
+.nav-item.active { color: var(--primary); }
+
+/* ===== Body Padding (so content doesn't hide under fixed navbar) ===== */
+
+body {
+    padding-bottom: 64px; /* navbar height */
+}
+
+/* Optional: larger padding on desktop if needed */
+@media (min-width: 768px) {
+    body {
+        padding-bottom: 64px;
+    }
+}
+
+/* ===== Optional: Active page indicator bar ===== */
+.navbar .active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 32px;
+    height: 3px;
+    background: var(--primary);
+}

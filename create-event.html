@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KBU PULSE - Create Event</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <script src="js/navbar.js"></script>
+</head>
+<body>
+    <nav class="navbar" id="navbar"></nav>
+
+    <main class="min-vh-100 flex flex-col items-center justify-center p-4">
+
+        <div id="create-event-guest" style="display: none;" class="text-center py-12">
+            <h2 class="text-xl font-bold mb-4">Please log in to create an event</h2>
+            <a href="login.html" class="btn btn-primary">Login</a>
+        </div>
+
+        <div id="create-event-content" class="w-full max-w-md border rounded-lg p-8 shadow-card" style="width: 100%;">
+            <h2 class="text-xl font-bold text-center mb-6">Create Event</h2>
+
+            <form id="create-event-form" class="space-y-4" method="post" action="#">
+                <div>create-event-form
+                    <label class="block text-sm font-medium mb-2">Title</label>
+                    <input type="text" name="title" class="form-input" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Description</label>
+                    <textarea name="description" class="form-input" rows="3" required></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Category</label>
+                    <select name="category" class="form-input">
+                        <option value="">Select Category</option>
+                        <option value="HACKATHON">Hackathon</option>
+                        <option value="CAPSTONE">Capstone</option>
+                        <option value="STUDY_GROUP">Study Group</option>
+                        <option value="WORKSHOP">Workshop</option>
+                        <option value="SEMINAR">Seminar</option>
+                        <option value="CLUB_EVENT">Club Event</option>
+                        <option value="COMPETITION">Competition</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary w-full">Create Event</button>
+            </form>
+        </div>
+    </main>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
