@@ -423,12 +423,17 @@ async function initEventDetailPage() {
 
         header.innerHTML = `
             <h2 class="text-xl font-bold">${event.title}</h2>
-            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
                 <img src="${event.creator?.avatarUrl || 'assets/kbu.webp'}" alt="${event.creator?.fullName}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                 <div>
-                    <div style="font-weight: 600; font-size: 0.9rem;">${event.creator?.fullName || 'Unknown'} <span class="text-muted" style="font-weight: 400;">(${event.creator?.major || ''})</span></div>
-                    <div class="text-muted" style="font-size: 0.8rem;">${event.category} · ${formatDate(event.createdAt)}</div>
+                    <div style="font-weight: 600; font-size: 0.9rem;">${event.creator?.fullName || 'Unknown'}</div>
+                    <div class="text-muted" style="font-size: 0.75rem;">${event.creator?.major || ''}</div>
                 </div>
+            </div>
+            <div class="event-meta" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
+                ${event.major ? `<span class="meta-badge meta-major">${event.major}</span>` : ''}
+                <span class="meta-badge meta-category">${event.category}</span>
+                <span class="meta-badge meta-date">${formatDate(event.createdAt)}</span>
             </div>
             ${
                 event.imageUrls && event.imageUrls.length > 0
