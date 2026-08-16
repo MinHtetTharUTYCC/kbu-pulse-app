@@ -4,22 +4,31 @@
 import { capitalize } from './util.js';
 
 // ========== CONFIG ==========
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'https://kbu-pulse-api-1.onrender.com';
 const AUTH_KEY = 'kbu_pulse_user';
 
 // ========== UTILITIES ==========
+function requireAuth() {
+    if (!getUser()) {
+        window.location.href = 'login.html';
+        return false;
+    }
+    return true;
+}
+
 function showToast(message, type = 'info') {
     const existing = document.querySelector('.toast');
     if (existing) existing.remove();
 
     const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.innerHTML = `
-        <span>${message}</span>
-        <button class="btn btn-sm btn-secondary" onclick="this.parentElement.remove()">×</button>
-    `;
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
     document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 5000);
+    requestAnimationFrame(() => toast.classList.add('toast-show'));
+    setTimeout(() => {
+        toast.classList.remove('toast-show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }
 
 function formatDate(iso) {
@@ -79,10 +88,15 @@ const apiClient = {
     },
 
     async post(path, body) {
+        const user = getUser();
+        const headers = {};
+        if (user) headers['x-user-id'] = user.id;
+        const isFormData = body instanceof FormData;
+        if (!isFormData) headers['Content-Type'] = 'application/json';
         const res = await fetch(`${API_BASE_URL}${path}`, {
             method: 'POST',
-            headers: this._headers(),
-            body: JSON.stringify(body),
+            headers,
+            body: isFormData ? body : JSON.stringify(body),
         });
         return this._handle(res);
     },
@@ -384,9 +398,10 @@ async function initEventDetailPage() {
             const upvoteText = upvoteBtn.querySelector('.upvote-text');
             if (upvoteText) upvoteText.textContent = `Upvotes (${event.upvoteCount || 0})`;
             upvoteBtn.addEventListener('click', async () => {
+                if (!requireAuth()) return;
                 try {
-                    await apiClient.patch(`/api/events/${eventId}/upvote`);
-                    showToast('Upvoted!', 'success');
+                    const res = await apiClient.post(`/api/events/${eventId}/upvote`);
+                    showToast(res.data.hasUpvoted ? 'Upvoted!' : 'Upvote removed', 'success');
                     window.location.href = window.location.href;
                 } catch (err) {
                     showToast(err.message, 'error');
@@ -401,9 +416,10 @@ async function initEventDetailPage() {
             const saveText = saveBtn.querySelector('.save-text');
             if (saveText) saveText.textContent = event.hasSaved ? 'Unsave' : 'Save';
             saveBtn.addEventListener('click', async () => {
+                if (!requireAuth()) return;
                 try {
-                    await apiClient.patch(`/api/events/${eventId}/save`);
-                    showToast('Saved!', 'success');
+                    const res = await apiClient.post(`/api/events/${eventId}/save`);
+                    showToast(res.data.isSaved ? 'Saved!' : 'Unsaved', 'success');
                     window.location.href = window.location.href;
                 } catch (err) {
                     showToast(err.message, 'error');
@@ -426,6 +442,7 @@ async function initEventDetailPage() {
     if (commentForm) {
         commentForm.onsubmit = async (e) => {
             e.preventDefault();
+            if (!requireAuth()) return;
             const content = e.target.elements.content?.value?.trim();
             if (!content) return;
 
@@ -523,26 +540,88 @@ function initCreateEventPage() {
     if (contentSection) contentSection.style.display = 'block';
 
     const form = document.getElementById('create-event-form');
-    if (!form) return;
+    const fileInput = document.getElementById('event-images');
+    const previewContainer = document.getElementById('image-preview');
+    if (!form || !fileInput || !previewContainer) return;
+
+    let selectedFiles = [];
+
+    function renderPreviews() {
+        previewContainer.innerHTML = '';
+        selectedFiles.forEach((file, index) => {
+            const item = document.createElement('div');
+            item.className = 'preview-item';
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.alt = file.name;
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'remove-btn';
+            removeBtn.textContent = '\u00d7';
+            removeBtn.addEventListener('click', () => {
+                selectedFiles.splice(index, 1);
+                renderPreviews();
+            });
+            item.appendChild(img);
+            item.appendChild(removeBtn);
+            previewContainer.appendChild(item);
+        });
+    }
+
+    fileInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files);
+        for (const file of files) {
+            if (selectedFiles.length >= 4) {
+                showToast('Maximum 4 images allowed', 'error');
+                break;
+            }
+            if (file.size > 10 * 1024 * 1024) {
+                showToast(`${file.name} exceeds 10MB limit`, 'error');
+                continue;
+            }
+            if (!['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/heic', 'image/heif'].includes(file.type)) {
+                showToast(`${file.name} is not a supported image type`, 'error');
+                continue;
+            }
+            selectedFiles.push(file);
+        }
+        fileInput.value = '';
+        renderPreviews();
+    });
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const title = e.target.elements.title.value.trim();
         const description = e.target.elements.description.value.trim();
         const category = e.target.elements.category.value;
-        const imageUrl = e.target.elements.imageUrl.value.trim();
+        const major = e.target.elements.major.value || undefined;
 
         if (!title || !description || !category) {
             showToast('Please fill in all required fields', 'error');
             return;
         }
 
+        const submitBtn = form.querySelector('button[type="submit"]');
         try {
-            await apiClient.post('/api/events/', { title, description, category, imageUrl });
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating...';
+
+            const eventRes = await apiClient.post('/api/events/', { title, description, category, major });
+            const eventId = eventRes.data.id;
+
+            if (selectedFiles.length > 0) {
+                submitBtn.textContent = 'Uploading images...';
+                const formData = new FormData();
+                selectedFiles.forEach((file) => formData.append('files', file));
+                await apiClient.post(`/api/events/${eventId}/images`, formData);
+            }
+
             showToast('Event created!', 'success');
             window.location.href = 'index.html';
         } catch (err) {
             showToast(err.message, 'error');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Create Event';
         }
     });
 }
@@ -626,10 +705,11 @@ async function loadEvents(page = 1, category = null, major = null, search = '', 
         document.querySelectorAll('.upvote-btn').forEach((btn) => {
             btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
+                if (!requireAuth()) return;
                 const eventId = btn.dataset.eventId;
                 try {
-                    await apiClient.patch(`/api/events/${eventId}/upvote`);
-                    showToast('Upvoted!', 'success');
+                    const res = await apiClient.post(`/api/events/${eventId}/upvote`);
+                    showToast(res.data.hasUpvoted ? 'Upvoted!' : 'Upvote removed', 'success');
                     loadEvents(page, category, major, search, sort);
                 } catch (err) {
                     showToast(err.message, 'error');
@@ -640,10 +720,11 @@ async function loadEvents(page = 1, category = null, major = null, search = '', 
         document.querySelectorAll('.save-btn').forEach((btn) => {
             btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
+                if (!requireAuth()) return;
                 const eventId = btn.dataset.eventId;
                 try {
-                    await apiClient.patch(`/api/events/${eventId}/save`);
-                    showToast('Saved!', 'success');
+                    const res = await apiClient.post(`/api/events/${eventId}/save`);
+                    showToast(res.data.isSaved ? 'Saved!' : 'Unsaved', 'success');
                     loadEvents(page, category, major, search, sort);
                 } catch (err) {
                     showToast(err.message, 'error');
@@ -674,6 +755,7 @@ async function loadComments(eventId, page = 1) {
 
         container.querySelectorAll('.like-btn').forEach((btn) => {
             btn.addEventListener('click', async () => {
+                if (!requireAuth()) return;
                 const commentId = btn.dataset.commentId;
                 try {
                     const res = await apiClient.post(`/api/events/${eventId}/comments/${commentId}/like`);
@@ -732,33 +814,6 @@ async function loadMyEvents() {
     if (!user) return;
 
     try {
-        const response = await apiClient.get(`/api/users/me/events`);
-        const container = document.getElementById('my-events-list');
-
-        if (!container) return;
-
-        const events = response.data.data;
-
-        if (events.length === 0) {
-            container.innerHTML =
-                '<p class="text-muted">No events yet. <a href="create-event.html">Create your first event</a></p>';
-            return;
-        }
-
-        container.innerHTML = events.map((event) => renderEventCard(event, true)).join('');
-
-        // Attach listeners
-        document.querySelectorAll('.upvote-btn, .save-btn').forEach((btn) => {
-            btn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                const eventId = btn.dataset.eventId;
-                try {
-                    await apiClient.patch(`/api/events/${eventId}/upvote`);
-                } catch (err) {
-                    showToast(err.message, 'error');
-                }
-            });
-        });
     } catch (err) {
         showToast(err.message, 'error');
     }
@@ -769,29 +824,6 @@ async function loadMyComments() {
     if (!user) return;
 
     try {
-        const response = await apiClient.get(`/api/users/me/comments`);
-        const container = document.getElementById('my-comments-list');
-
-        if (!container) return;
-
-        const comments = response.data.data;
-
-        if (comments.length === 0) {
-            container.innerHTML = '<p class="text-muted">No comments yet.</p>';
-            return;
-        }
-
-        container.innerHTML = comments
-            .map((comment) => {
-                const eventTitle = comment.event ? comment.event.title : 'Event';
-                return `
-                <div class="comment-card">
-                    <p class="comment-content" style="font-size: 0.875rem; margin: 0.25rem 0;">${comment.content}</p>
-                    <small class="comment-event" style="font-size: 0.7rem; color: var(--text-muted);">in ${eventTitle}</small>
-                </div>
-            `;
-            })
-            .join('');
     } catch (err) {
         showToast(err.message, 'error');
     }

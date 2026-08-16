@@ -46,6 +46,25 @@
                         <option value="OTHER">Other</option>
                     </select>
                 </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Major <span class="text-muted">(optional)</span></label>
+                    <select name="major" class="form-input">
+                        <option value="">All Majors</option>
+                        <option value="DTI">DTI</option>
+                        <option value="BBA">BBA</option>
+                        <option value="APDI">APDI</option>
+                        <option value="CIVIL">Civil</option>
+                        <option value="MECHANICAL">Mechanical</option>
+                        <option value="ELECTRICAL">Electrical</option>
+                        <option value="ARCHITECTURE">Architecture</option>
+                        <option value="IT">IT</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Images <span class="text-muted">(up to 4)</span></label>
+                    <input type="file" id="event-images" multiple accept="image/png,image/jpeg,image/jpg,image/webp,image/heic,image/heif" class="form-input">
+                    <div id="image-preview" class="image-preview"></div>
+                </div>
                 <button type="submit" class="btn btn-primary w-full">Create Event</button>
             </form>
         </div>
