@@ -41,18 +41,21 @@ a:hover { color: var(--primary); }
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
+    gap: 0.25rem;
+    min-width: 36px;
     height: 36px;
-    padding: 0;
+    padding: 0 0.5rem;
     border-radius: var(--radius);
     cursor: pointer;
     transition: var(--transition);
     background: var(--surface);
     color: var(--text-muted);
     border: 1px solid var(--border);
+    font-size: 0.8rem;
 }
 .btn-icon:hover { color: var(--primary); border-color: var(--primary); }
-.btn-icon svg { width: 18px; height: 18px; }
+.btn-icon.active { color: var(--primary); border-color: var(--primary); background: var(--primary-light); }
+.btn-icon svg { width: 18px; height: 18px; flex-shrink: 0; }
 
 /* Forms */
 .form-input {

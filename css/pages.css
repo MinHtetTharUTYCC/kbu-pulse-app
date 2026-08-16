@@ -80,3 +80,21 @@ body {
 /* Profile sub-pages */
 .profile-section { display: none; }
 .profile-section.active { display: block; }
+
+/* Event Detail - Responsive Layout */
+.detail-layout { max-width: 960px; margin: 0 auto; }
+.detail-main,
+.detail-sidebar { min-width: 0; }
+
+@media (min-width: 768px) {
+    .detail-layout {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 1.5rem;
+        align-items: start;
+    }
+    .detail-sidebar {
+        position: sticky;
+        top: 1rem;
+    }
+}

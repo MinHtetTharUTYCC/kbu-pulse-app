@@ -123,15 +123,16 @@ function renderEventCard(event, showButtons = false) {
                     : `<img class="event-card-img" src="assets/kbu.webp" alt="${event.title}">`
             }
             <h3 class="event-card-title" style="font-size: 1rem; margin: 0.5rem 0;">${event.title}</h3>
-            <p class="event-card-desc" style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">${truncate(event.description, 80)}</p>
+            <p class="event-card-desc" style="font-size: 0.875rem; color: var(--text-muted); margin: 0.5rem 0;">${truncate(event.description, 80)}</p>
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span class="event-card-meta">${capitalize(event.category)}</span>
                 ${
                     showButtons
                         ? `
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button class="btn-icon upvote-btn" data-event-id="${event.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></button>
-                        <button class="btn-icon save-btn" data-event-id="${event.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <button class="btn-icon upvote-btn${event.hasUpvoted ? ' active' : ''}" data-event-id="${event.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg><span>${event.upvoteCount || 0}</span></button>
+                        <button class="btn-icon save-btn${event.hasSaved ? ' active' : ''}" data-event-id="${event.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+                        <span style="font-size: 0.75rem; color: var(--text-muted); display: inline-flex; align-items: center; gap: 0.2rem;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${event.commentCount || 0}</span>
                     </div>
                 `
                         : ''
@@ -336,16 +337,32 @@ async function initEventDetailPage() {
     }
 
     try {
-        const event = await apiClient.get(`/api/events/${eventId}`);
+        const res = await apiClient.get(`/api/events/${eventId}`);
+       
+        const event = res.data;
+
         const header = document.getElementById('event-header');
         if (!header) return;
 
         header.innerHTML = `
             <h2 class="text-xl font-bold">${event.title}</h2>
-            <p class="text-muted" style="font-size: 0.9rem;">${event.category} • ${formatDate(event.createdAt)}</p>
-            <img src="${event.imageUrls?.[0] || 'assets/placeholder.svg'}" alt="${event.title}" class="event-card-img w-full mb-2">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                <img src="${event.creator?.avatarUrl || 'assets/kbu.webp'}" alt="${event.creator?.fullName}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                <div>
+                    <div style="font-weight: 600; font-size: 0.9rem;">${event.creator?.fullName || 'Unknown'} <span class="text-muted" style="font-weight: 400;">(${event.creator?.major || ''})</span></div>
+                    <div class="text-muted" style="font-size: 0.8rem;">${event.category} · ${formatDate(event.createdAt)}</div>
+                </div>
+            </div>
+            ${
+                event.imageUrls && event.imageUrls.length > 0
+                    ? `<img class="event-card-img" src="${event.imageUrls[0]}" alt="${event.title}">`
+                    : `<img class="event-card-img" src="assets/kbu.webp" alt="${event.title}">`
+            }
             <p style="font-size: 0.9rem; margin: 0.5rem 0;">${event.description}</p>
         `;
+
+        const commentCountEl = document.getElementById('comment-count');
+        if (commentCountEl && event.commentCount) commentCountEl.textContent = `(${event.commentCount})`;
 
         const eventActions = document.querySelector('.event-actions');
         if (eventActions) eventActions.style.display = 'block';
@@ -353,6 +370,11 @@ async function initEventDetailPage() {
         const upvoteBtn = document.querySelector('.upvote-btn');
         if (upvoteBtn) {
             upvoteBtn.dataset.eventId = eventId;
+            if (event.hasUpvoted) upvoteBtn.classList.add('active');
+            upvoteBtn.querySelector('span')?.remove();
+            const countSpan = document.createElement('span');
+            countSpan.textContent = event.upvoteCount || 0;
+            upvoteBtn.appendChild(countSpan);
             upvoteBtn.addEventListener('click', async () => {
                 try {
                     await apiClient.patch(`/api/events/${eventId}/upvote`);
@@ -367,6 +389,7 @@ async function initEventDetailPage() {
         const saveBtn = document.querySelector('.save-btn');
         if (saveBtn) {
             saveBtn.dataset.eventId = eventId;
+            if (event.hasSaved) saveBtn.classList.add('active');
             saveBtn.addEventListener('click', async () => {
                 try {
                     await apiClient.patch(`/api/events/${eventId}/save`);
@@ -567,6 +590,15 @@ async function loadEvents(page = 1, category = null, major = null, search = '', 
         const events20x = Array.from({ length: 20 }, () => events).flat();
 
         container.innerHTML = events20x.map((event) => renderEventCard(event, true)).join('');
+
+        container.querySelectorAll('.event-card').forEach((card) => {
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('.upvote-btn') || e.target.closest('.save-btn')) return;
+                const id = card.querySelector('.upvote-btn')?.dataset.eventId;
+                if (id) window.location.href = `event-detail.html?id=${id}`;
+            });
+        });
 
         const totalEvents = meta.total;
         pagination.innerHTML = renderPagination(totalEvents, meta.page);
