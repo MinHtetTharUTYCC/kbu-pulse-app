@@ -1,7 +1,7 @@
 // ========== KBU PULSE - Main Application ==========
 // All logic merged into single file for static server compatibility
 
-import { capitalize } from './util.js';
+import { capitalize, formatCategory } from './util.js';
 
 // ========== CONFIG ==========
 const API_BASE_URL = 'https://kbu-pulse-api-1.onrender.com';
@@ -192,7 +192,7 @@ function renderEventCard(event, showButtons = false) {
             <h3 class="event-card-title" style="font-size: 1rem; margin: 0.5rem 0;">${event.title}</h3>
             <p class="event-card-desc" style="font-size: 0.875rem; color: var(--text-muted); margin: 0.5rem 0;">${truncate(event.description, 80)}</p>
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span class="event-card-meta">${capitalize(event.category)}</span>
+                <span class="event-card-meta">${formatCategory(event.category)}</span>
                 ${
                     showButtons
                         ? `
@@ -432,7 +432,7 @@ async function initEventDetailPage() {
             </div>
             <div class="event-meta" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
                 ${event.major ? `<span class="meta-badge meta-major">${event.major}</span>` : ''}
-                <span class="meta-badge meta-category">${event.category}</span>
+                <span class="meta-badge meta-category">${formatCategory(event.category)}</span>
                 <span class="meta-badge meta-date">${formatDate(event.createdAt)}</span>
             </div>
             ${
