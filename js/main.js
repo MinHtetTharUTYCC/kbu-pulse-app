@@ -41,6 +41,56 @@ function formatDate(iso) {
     });
 }
 
+let lightboxImages = [];
+let lightboxIndex = 0;
+
+function openLightbox(images, startIndex = 0) {
+    lightboxImages = images;
+    lightboxIndex = startIndex;
+    renderLightbox();
+}
+
+function renderLightbox() {
+    let overlay = document.getElementById('lightbox-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'lightbox-overlay';
+        overlay.className = 'lightbox-overlay';
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) closeLightbox();
+        });
+        document.body.appendChild(overlay);
+    }
+    overlay.innerHTML = `
+        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+        <button class="lightbox-nav lightbox-prev" onclick="navigateLightbox(-1)">&#8249;</button>
+        <img class="lightbox-img" src="${lightboxImages[lightboxIndex]}" alt="Image ${lightboxIndex + 1}">
+        <button class="lightbox-nav lightbox-next" onclick="navigateLightbox(1)">&#8250;</button>
+        <div class="lightbox-counter">${lightboxIndex + 1} / ${lightboxImages.length}</div>
+    `;
+    overlay.classList.add('lightbox-show');
+}
+
+function navigateLightbox(dir) {
+    lightboxIndex = (lightboxIndex + dir + lightboxImages.length) % lightboxImages.length;
+    renderLightbox();
+}
+
+function closeLightbox() {
+    const overlay = document.getElementById('lightbox-overlay');
+    if (overlay) {
+        overlay.classList.remove('lightbox-show');
+        setTimeout(() => overlay.remove(), 300);
+    }
+}
+
+document.addEventListener('keydown', (e) => {
+    if (!document.getElementById('lightbox-overlay')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') navigateLightbox(-1);
+    if (e.key === 'ArrowRight') navigateLightbox(1);
+});
+
 function truncate(str, len = 50) {
     if (!str) return '';
     return str.length > len ? str.slice(0, len) + '...' : str;
@@ -379,11 +429,19 @@ async function initEventDetailPage() {
             </div>
             ${
                 event.imageUrls && event.imageUrls.length > 0
-                    ? `<img class="event-card-img" src="${event.imageUrls[0]}" alt="${event.title}">`
+                    ? `<div class="event-images-grid">${event.imageUrls.map((url, i) => `<img class="event-card-img" src="${url}" alt="${event.title} ${i + 1}" data-image-index="${i}" style="cursor: pointer;">`).join('')}</div>`
                     : `<img class="event-card-img" src="assets/kbu.webp" alt="${event.title}">`
             }
             <p style="font-size: 0.9rem; margin: 0.5rem 0;">${event.description}</p>
         `;
+
+        const imageGrid = header.querySelector('.event-images-grid');
+        if (imageGrid) {
+            imageGrid.addEventListener('click', (e) => {
+                const img = e.target.closest('img[data-image-index]');
+                if (img) openLightbox(event.imageUrls, parseInt(img.dataset.imageIndex));
+            });
+        }
 
         const commentCountEl = document.getElementById('comment-count');
         if (commentCountEl && event.commentCount) commentCountEl.textContent = `(${event.commentCount})`;
