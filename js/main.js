@@ -130,9 +130,9 @@ function renderEventCard(event, showButtons = false) {
                     showButtons
                         ? `
                     <div style="display: flex; gap: 0.5rem; align-items: center;">
-                        <button class="btn-icon upvote-btn${event.hasUpvoted ? ' active' : ''}" data-event-id="${event.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg><span>${event.upvoteCount || 0}</span></button>
+                        <button class="btn-icon upvote-btn${event.hasUpvoted ? ' active' : ''}" data-event-id="${event.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span>${event.upvoteCount || 0}</span></button>
                         <button class="btn-icon save-btn${event.hasSaved ? ' active' : ''}" data-event-id="${event.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
-                        <span style="font-size: 0.75rem; color: var(--text-muted); display: inline-flex; align-items: center; gap: 0.2rem;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${event.commentCount || 0}</span>
+                        <button class="btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${event.commentCount || 0}</button>
                     </div>
                 `
                         : ''
@@ -143,15 +143,25 @@ function renderEventCard(event, showButtons = false) {
 }
 
 function renderCommentCard(comment) {
-    const eventTitle = comment.event ? comment.event.title : '';
+    const author = comment.author || {};
+    const currentUser = getUser();
+    const isOwner = currentUser && author.id === currentUser.id;
+    const commentId = comment.id;
     return `
         <div class="comment-card">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.25rem;">
-                <span class="comment-meta" style="font-size: 0.75rem; color: var(--text-muted);">${formatDate(comment.createdAt)}</span>
-                ${comment.userId === 'current' ? `<button class="btn btn-xs btn-secondary" onclick="deleteComment('${comment.id}')">×</button>` : ''}
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                <img src="${author.avatarUrl || 'assets/placeholder.svg'}" alt="${author.fullName}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
+                <span style="font-size: 0.8rem; font-weight: 600;">${author.fullName || 'Unknown'}</span>
+                <span class="text-muted" style="font-size: 0.7rem;">${formatDate(comment.createdAt)}</span>
+                ${isOwner ? `<button class="btn btn-xs btn-secondary" style="margin-left: auto;" onclick="deleteComment('${commentId}')">×</button>` : ''}
             </div>
             <p class="comment-content" style="font-size: 0.875rem; margin: 0.25rem 0;">${comment.content}</p>
-            ${eventTitle ? `<small class="comment-event" style="font-size: 0.7rem; color: var(--text-muted);">in ${eventTitle}</small>` : ''}
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem;">
+                <button class="btn-icon like-btn${comment.hasLiked ? ' active' : ''}" data-comment-id="${commentId}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+                    <span>${comment.totalLikes || 0}</span>
+                </button>
+            </div>
         </div>
     `;
 }
@@ -371,10 +381,8 @@ async function initEventDetailPage() {
         if (upvoteBtn) {
             upvoteBtn.dataset.eventId = eventId;
             if (event.hasUpvoted) upvoteBtn.classList.add('active');
-            upvoteBtn.querySelector('span')?.remove();
-            const countSpan = document.createElement('span');
-            countSpan.textContent = event.upvoteCount || 0;
-            upvoteBtn.appendChild(countSpan);
+            const upvoteText = upvoteBtn.querySelector('.upvote-text');
+            if (upvoteText) upvoteText.textContent = `Upvotes (${event.upvoteCount || 0})`;
             upvoteBtn.addEventListener('click', async () => {
                 try {
                     await apiClient.patch(`/api/events/${eventId}/upvote`);
@@ -390,6 +398,8 @@ async function initEventDetailPage() {
         if (saveBtn) {
             saveBtn.dataset.eventId = eventId;
             if (event.hasSaved) saveBtn.classList.add('active');
+            const saveText = saveBtn.querySelector('.save-text');
+            if (saveText) saveText.textContent = event.hasSaved ? 'Unsave' : 'Save';
             saveBtn.addEventListener('click', async () => {
                 try {
                     await apiClient.patch(`/api/events/${eventId}/save`);
@@ -587,9 +597,9 @@ async function loadEvents(page = 1, category = null, major = null, search = '', 
             return;
         }
 
-        const events20x = Array.from({ length: 20 }, () => events).flat();
+        // const events20x = Array.from({ length: 20 }, () => events).flat();
 
-        container.innerHTML = events20x.map((event) => renderEventCard(event, true)).join('');
+        container.innerHTML = events.map((event) => renderEventCard(event, true)).join('');
 
         container.querySelectorAll('.event-card').forEach((card) => {
             card.style.cursor = 'pointer';
@@ -651,16 +661,47 @@ async function loadComments(eventId, page = 1) {
     try {
         const response = await apiClient.get(`/api/events/${eventId}/comments?page=${page}`);
         const container = document.getElementById('comment-list');
+        const paginationContainer = document.getElementById('comment-pagination');
 
         if (!container) return;
 
         const comments = response.data.data;
+        const meta = response.data.meta;
 
         container.innerHTML = comments
-            .map((comment) => {
-                return renderCommentCard({ ...comment, event: { title: 'KBU PULSE Event' } });
-            })
+            .map((comment) => renderCommentCard(comment))
             .join('');
+
+        container.querySelectorAll('.like-btn').forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                const commentId = btn.dataset.commentId;
+                try {
+                    const res = await apiClient.post(`/api/events/${eventId}/comments/${commentId}/like`);
+                    const countSpan = btn.querySelector('span');
+                    if (res.data) {
+                        btn.classList.toggle('active', res.data.hasLiked);
+                        if (countSpan) countSpan.textContent = res.data.totalLikes;
+                    }
+                } catch (err) {
+                    showToast(err.message, 'error');
+                }
+            });
+        });
+
+        if (paginationContainer && meta) {
+            const pages = Math.ceil(meta.total / (meta.limit || 20));
+            let html = '';
+            for (let i = 1; i <= pages; i++) {
+                const active = i === meta.page ? 'active' : '';
+                html += `<button class="pagination-btn ${active}" data-page="${i}">${i}</button>`;
+            }
+            paginationContainer.innerHTML = html;
+            paginationContainer.querySelectorAll('.pagination-btn').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    loadComments(eventId, parseInt(btn.dataset.page, 10));
+                });
+            });
+        }
     } catch (err) {
         showToast(err.message || 'Failed to load comments', 'error');
     }
