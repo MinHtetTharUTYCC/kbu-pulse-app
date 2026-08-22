@@ -465,12 +465,17 @@ async function initEventDetailPage() {
             if (upvoteText) upvoteText.textContent = `Upvotes (${event.upvoteCount || 0})`;
             upvoteBtn.addEventListener('click', async () => {
                 if (!requireAuth()) return;
+                upvoteBtn.disabled = true;
                 try {
                     const res = await apiClient.post(`/api/events/${eventId}/upvote`);
+                    upvoteBtn.classList.toggle('active', res.data.hasUpvoted);
+                    const upvoteText = upvoteBtn.querySelector('.upvote-text');
+                    if (upvoteText) upvoteText.textContent = `Upvotes (${res.data.totalUpvotes ?? event.totalUpvotes ?? 0})`;
                     showToast(res.data.hasUpvoted ? 'Upvoted!' : 'Upvote removed', 'success');
-                    window.location.href = window.location.href;
                 } catch (err) {
                     showToast(err.message, 'error');
+                } finally {
+                    upvoteBtn.disabled = false;
                 }
             });
         }
@@ -483,12 +488,17 @@ async function initEventDetailPage() {
             if (saveText) saveText.textContent = event.hasSaved ? 'Unsave' : 'Save';
             saveBtn.addEventListener('click', async () => {
                 if (!requireAuth()) return;
+                saveBtn.disabled = true;
                 try {
                     const res = await apiClient.post(`/api/events/${eventId}/save`);
+                    saveBtn.classList.toggle('active', res.data.isSaved);
+                    const saveText = saveBtn.querySelector('.save-text');
+                    if (saveText) saveText.textContent = res.data.isSaved ? 'Unsave' : 'Save';
                     showToast(res.data.isSaved ? 'Saved!' : 'Unsaved', 'success');
-                    window.location.href = window.location.href;
                 } catch (err) {
                     showToast(err.message, 'error');
+                } finally {
+                    saveBtn.disabled = false;
                 }
             });
         }
@@ -772,13 +782,18 @@ async function loadEvents(page = 1, category = null, major = null, search = '', 
             btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
                 if (!requireAuth()) return;
+                btn.disabled = true;
                 const eventId = btn.dataset.eventId;
                 try {
                     const res = await apiClient.post(`/api/events/${eventId}/upvote`);
+                    btn.classList.toggle('active', res.data.hasUpvoted);
+                    const countEl = btn.querySelector('span');
+                    if (countEl) countEl.textContent = res.data.totalUpvotes ?? countEl.textContent;
                     showToast(res.data.hasUpvoted ? 'Upvoted!' : 'Upvote removed', 'success');
-                    loadEvents(page, category, major, search, sort);
                 } catch (err) {
                     showToast(err.message, 'error');
+                } finally {
+                    btn.disabled = false;
                 }
             });
         });
@@ -787,13 +802,16 @@ async function loadEvents(page = 1, category = null, major = null, search = '', 
             btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
                 if (!requireAuth()) return;
+                btn.disabled = true;
                 const eventId = btn.dataset.eventId;
                 try {
                     const res = await apiClient.post(`/api/events/${eventId}/save`);
+                    btn.classList.toggle('active', res.data.isSaved);
                     showToast(res.data.isSaved ? 'Saved!' : 'Unsaved', 'success');
-                    loadEvents(page, category, major, search, sort);
                 } catch (err) {
                     showToast(err.message, 'error');
+                } finally {
+                    btn.disabled = false;
                 }
             });
         });
