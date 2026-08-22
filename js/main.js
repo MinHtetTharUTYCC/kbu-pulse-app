@@ -582,6 +582,11 @@ function initProfilePage() {
             }
         });
     });
+
+    document.getElementById('logout-btn')?.addEventListener('click', () => {
+        clearUser();
+        window.location.href = 'index.html';
+    });
 }
 
 function initSavedEventsPage() {
