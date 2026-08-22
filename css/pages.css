@@ -65,6 +65,143 @@ body {
     }
 }
 
+/* ===== Page Layout ===== */
+
+/* Standard page content padding */
+.page-content { padding: 1rem; }
+
+/* Centered content wrapper with max-width */
+.content-wrapper {
+    max-width: 768px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 1rem;
+}
+
+/* Centered full-height page (login, register, create-event) */
+.page-center {
+    min-height: calc(100vh - 60px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+/* Narrow bordered card used on auth / form pages */
+.auth-card {
+    width: 100%;
+    max-width: 448px;
+    padding: 2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow-md);
+}
+
+/* Centered "please log in" message */
+.guest-message {
+    text-align: center;
+    padding: 3rem 0;
+}
+
+/* Page header block with title */
+.page-header { margin-bottom: 1rem; }
+.page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+/* Centered heading inside auth cards */
+.auth-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+/* Full-width button inside a form */
+.form-stack .btn {
+    width: 100%;
+}
+
+/* Small centered text below forms */
+.form-footer {
+    text-align: center;
+    font-size: 0.875rem;
+    margin-top: 1rem;
+}
+
+/* Sidebar cards stacked */
+.detail-sidebar > * + * {
+    margin-top: 1rem;
+}
+
+/* Comment list */
+.comment-count {
+    font-size: 0.875rem;
+}
+
+/* Small pagination inside comment section */
+.pagination-row--compact {
+    margin-top: 0.75rem;
+    display: flex;
+    justify-content: center;
+}
+
+/* Empty state */
+.empty-state p { margin-bottom: 1rem; }
+
+/* Pagination row */
+.pagination-row {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
+}
+
+/* Text helpers */
+.text-muted { color: var(--text-muted); }
+.text-error { color: var(--error); }
+
+/* ===== Home page - Event Grid ===== */
+
+.event-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+@media (min-width: 640px) {
+    .event-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 1024px) {
+    .event-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ===== Forms (auth / create event) ===== */
+
+.form-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+.comment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
 /* ===== Existing Page Styles (unchanged below) ===== */
 
 /* Home page - Event List */

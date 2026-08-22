@@ -8,32 +8,33 @@
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pages.css">
     <script src="js/navbar.js"></script>
 </head>
 <body>
     <nav class="navbar" id="navbar"></nav>
 
-    <main class="min-vh-100 flex flex-col items-center justify-center p-4">
+    <main class="page-center">
 
-        <div id="create-event-guest" style="display: none;" class="text-center py-12">
-            <h2 class="text-xl font-bold mb-4">Please log in to create an event</h2>
+        <div id="create-event-guest" style="display: none;" class="guest-message">
+            <h2 class="section-title">Please log in to create an event</h2>
             <a href="login.html" class="btn btn-primary">Login</a>
         </div>
 
-        <div id="create-event-content" class="w-full max-w-md border rounded-lg p-8 shadow-card" style="width: 100%;">
-            <h2 class="text-xl font-bold text-center mb-6">Create Event</h2>
+        <div id="create-event-content" class="auth-card">
+            <h2 class="auth-title">Announce Event</h2>
 
-            <form id="create-event-form" class="space-y-4" method="post" action="#">
+            <form id="create-event-form" class="form-stack" method="post" action="#">
                 <div>
-                    <label class="block text-sm font-medium mb-2">Title</label>
+                    <label class="form-label">Title</label>
                     <input type="text" name="title" class="form-input" required>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-2">Description</label>
+                    <label class="form-label">Description</label>
                     <textarea name="description" class="form-input" rows="3" required></textarea>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-2">Category</label>
+                    <label class="form-label">Category</label>
                     <select name="category" class="form-input">
                         <option value="">Select Category</option>
                         <option value="HACKATHON">Hackathon</option>
@@ -47,7 +48,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-2">Major <span class="text-muted">(optional)</span></label>
+                    <label class="form-label">Major <span class="text-muted">(optional)</span></label>
                     <select name="major" class="form-input">
                         <option value="">All Majors</option>
                         <option value="DTI">DTI</option>
@@ -61,11 +62,11 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-2">Images <span class="text-muted">(up to 4)</span></label>
+                    <label class="form-label">Images <span class="text-muted">(up to 4)</span></label>
                     <input type="file" id="event-images" multiple accept="image/png,image/jpeg,image/jpg,image/webp,image/heic,image/heif" class="form-input">
                     <div id="image-preview" class="image-preview"></div>
                 </div>
-                <button type="submit" class="btn btn-primary w-full">Create Event</button>
+                <button type="submit" class="btn btn-primary">Announce Event</button>
             </form>
         </div>
     </main>

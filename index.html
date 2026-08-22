@@ -14,13 +14,13 @@
 <body>
     <nav class="navbar" id="navbar"></nav>
 
-    <main class="p-4">
-        <div class="mb-4">
-            <h3 class="text-2xl font-bold">KBU PULSE</h3>
+    <main class="page-content">
+        <div class="page-header">
+            <h3 class="page-title">KBU PULSE</h3>
             <p class="text-muted">See what is going on at KBU!</p>
         </div>
 
-        <div class="event-filters mb-4">
+        <div class="event-filters">
             <select class="filter-select" id="category-filter">
                 <option value="">All Categories</option>
                 <option value="HACKATHON">Hackathon</option>
@@ -50,10 +50,10 @@
             <input type="text" class="search-input" placeholder="Search events..." id="search-input">
         </div>
 
-        <div id="event-list" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div id="event-list" class="event-grid">
         </div>
 
-        <div id="pagination" class="mt-6 flex justify-center"></div>
+        <div id="pagination" class="pagination-row"></div>
     </main>
     <script type="module" src="js/main.js"></script>
 </body>

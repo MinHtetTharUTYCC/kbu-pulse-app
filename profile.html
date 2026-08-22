@@ -14,17 +14,17 @@
 <body>
     <nav class="navbar" id="navbar"></nav>
 
-    <main class="max-w-3xl mx-auto p-4">
+    <main class="content-wrapper">
         <!-- SHOWN when NOT logged in -->
-        <div id="profile-guest" style="display: none;" class="text-center py-12">
-            <h2 class="text-xl font-bold mb-4">Please log in to view your profile</h2>
+        <div id="profile-guest" style="display: none;" class="guest-message">
+            <h2 class="section-title">Please log in to view your profile</h2>
             <a href="login.html" class="btn btn-primary">Login</a>
         </div>
 
         <!-- SHOWN when logged in -->
         <div id="profile-content" style="display: none;">
             <!-- TODO: Add profile content here -->
-             <h1 class="text-2xl font-bold mb-4">My Profile</h1>
+             <h1 class="page-title">My Profile</h1>
              <h4 id="user-name"></h4>
              <p id="user-email"></p>
         </div>

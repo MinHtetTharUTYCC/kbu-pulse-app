@@ -422,7 +422,7 @@ async function initEventDetailPage() {
         if (!header) return;
 
         header.innerHTML = `
-            <h2 class="text-xl font-bold">${event.title}</h2>
+            <h2 class="section-title">${event.title}</h2>
             <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
                 <img src="${event.creator?.avatarUrl || 'assets/kbu.webp'}" alt="${event.creator?.fullName}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                 <div>
@@ -721,7 +721,7 @@ async function loadEvents(page = 1, category = null, major = null, search = '', 
             if (hasFilters) {
                 container.innerHTML = `
                     <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem;">
-                        <p class="text-muted mb-4">No events match your filters.</p>
+                        <p class="text-muted">No events match your filters.</p>
                         <button class="btn btn-primary" id="clear-filters-btn">Clear all filters</button>
                     </div>`;
                 document.getElementById('clear-filters-btn').addEventListener('click', () => {
