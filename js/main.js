@@ -181,9 +181,9 @@ const apiClient = {
 };
 
 // ========== RENDER HELPERS ==========
-function renderEventCard(event, showButtons = false) {
+function renderEventCard(event, { showActions = false, isOwner = false } = {}) {
     return `
-        <div class="event-card">
+        <div class="event-card" data-event-id="${event.id}">
             ${
                 event.imageUrls && event.imageUrls.length > 0
                     ? `<img class="event-card-img" src="${event.imageUrls[0]}" alt="${event.title}">`
@@ -194,7 +194,14 @@ function renderEventCard(event, showButtons = false) {
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span class="event-card-meta">${formatCategory(event.category)}</span>
                 ${
-                    showButtons
+                    isOwner
+                        ? `
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <button class="btn-icon edit-btn" data-event-id="${event.id}" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+                        <button class="btn-icon delete-btn" data-event-id="${event.id}" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"/></svg></button>
+                    </div>
+                `
+                        : showActions
                         ? `
                     <div style="display: flex; gap: 0.5rem; align-items: center;">
                         <button class="btn-icon upvote-btn${event.hasUpvoted ? ' active' : ''}" data-event-id="${event.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span>${event.upvoteCount || 0}</span></button>
@@ -208,6 +215,7 @@ function renderEventCard(event, showButtons = false) {
         </div>
     `;
 }
+
 
 function renderCommentCard(comment) {
     const author = comment.author || {};
@@ -551,37 +559,15 @@ function initProfilePage() {
 
     loadProfile();
 
-    const activeTab = localStorage.getItem('profileTab');
-    if (activeTab === 'events') {
-        loadMyEvents();
-    } else if (activeTab === 'comments') {
-        loadMyComments();
-    }
+    // TODO:
+    // get tab from local storage or  from URL
+    // and then show the corresponding tab content eg.loadMyEvents() or loadMyComments()
 
     // TODO: this is the example how we show profile content from API
     // you can check the api docs what it returns from /api/users/me and display it in the profile page
     document.getElementById('user-name').textContent = user.fullName;
     document.getElementById('user-email').textContent = user.email;
 
-    document.querySelectorAll('.profile-tab').forEach((tab) => {
-        tab.addEventListener('click', (e) => {
-            e.preventDefault();
-            document.querySelectorAll('.profile-tab').forEach((t) => t.classList.remove('active'));
-            e.target.classList.add('active');
-            const tabName = e.target.dataset.tab;
-            localStorage.setItem('profileTab', tabName);
-
-            document.querySelectorAll('.profile-section').forEach((section) => {
-                section.classList.toggle('active', section.dataset.tab === tabName);
-            });
-
-            if (tabName === 'events') {
-                loadMyEvents();
-            } else if (tabName === 'comments') {
-                loadMyComments();
-            }
-        });
-    });
 
     document.getElementById('logout-btn')?.addEventListener('click', () => {
         clearUser();
@@ -759,13 +745,13 @@ async function loadEvents(page = 1, category = null, major = null, search = '', 
 
         // const events20x = Array.from({ length: 20 }, () => events).flat();
 
-        container.innerHTML = events.map((event) => renderEventCard(event, true)).join('');
+        container.innerHTML = events.map((event) => renderEventCard(event, { showActions: true })).join('');
 
         container.querySelectorAll('.event-card').forEach((card) => {
             card.style.cursor = 'pointer';
             card.addEventListener('click', (e) => {
-                if (e.target.closest('.upvote-btn') || e.target.closest('.save-btn')) return;
-                const id = card.querySelector('.upvote-btn')?.dataset.eventId;
+                if (e.target.closest('button')) return;
+                const id = card.dataset.eventId;
                 if (id) window.location.href = `event-detail.html?id=${id}`;
             });
         });
@@ -902,10 +888,14 @@ async function loadMyEvents() {
     const user = getUser();
     if (!user) return;
 
-    try {
-    } catch (err) {
-        showToast(err.message, 'error');
-    }
+    // TODO: fetch user's events from API, then:
+    // renderMyEvents(events, async (eventId) => {
+    //     await apiClient.delete(`/api/events/${eventId}`);
+    //     showToast('Event deleted', 'success');
+    // });
+
+    const container = document.getElementById('my-events-list');
+    if (container) container.innerHTML = '<p class="text-muted">No events yet.</p>';
 }
 
 async function loadMyComments() {
