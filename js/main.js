@@ -888,20 +888,18 @@ async function loadMyEvents() {
     const user = getUser();
     if (!user) return;
 
-    // TODO: fetch user's events from API, then:
-    // renderMyEvents(events, async (eventId) => {
-    //     await apiClient.delete(`/api/events/${eventId}`);
-    //     showToast('Event deleted', 'success');
-    // });
-
-    const container = document.getElementById('my-events-list');
-    if (container) container.innerHTML = '<p class="text-muted">No events yet.</p>';
+    // TODO: implement fetching and rendering user's events
+    try {
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
 }
 
 async function loadMyComments() {
     const user = getUser();
     if (!user) return;
 
+    // TODO: implement fetching and rendering user's comments
     try {
     } catch (err) {
         showToast(err.message, 'error');
