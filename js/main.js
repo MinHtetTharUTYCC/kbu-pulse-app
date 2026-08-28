@@ -256,7 +256,7 @@ function renderSkeletonCards(count) {
     for (let i = 0; i < count; i++) {
         html += `
             <div class="skeleton-card">
-                <div class="skeleton skeleton-img"></div>
+            <div class="skeleton skeleton-img"></div>
                 <div class="skeleton skeleton-title"></div>
                 <div class="skeleton skeleton-text"></div>
                 <div class="skeleton skeleton-meta"></div>
@@ -271,15 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Render navbar
     if (window.navbar) window.navbar.renderNavbar(path);
-
-    // Protected pages check
-    const protectedPages = ['profile.html', 'create-event.html', 'event-detail.html'];
-    const user = getUser();
-    if (protectedPages.includes(path) && !user) {
-        clearUser();
-        window.location.href = 'login.html';
-        return;
-    }
 
     // Route to page handler
     if (path.includes('index.html') || path === '/') {
@@ -560,7 +551,7 @@ function initProfilePage() {
     loadProfile();
 
     // TODO:
-    // get tab from local storage or  from URL
+    // get tab(my events / my comments) from local storage or  from URL
     // and then show the corresponding tab content eg.loadMyEvents() or loadMyComments()
 
     // TODO: this is the example how we show profile content from API
