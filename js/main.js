@@ -41,6 +41,10 @@ function formatDate(iso) {
     });
 }
 
+function avatarUrl(name) {
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'User')}&background=ff751f&color=fff`;
+}
+
 let lightboxImages = [];
 let lightboxIndex = 0;
 
@@ -225,7 +229,7 @@ function renderCommentCard(comment) {
     return `
         <div class="comment-card">
             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
-                <img src="${author.avatarUrl || 'assets/placeholder.svg'}" alt="${author.fullName}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
+                <img src="${author.avatarUrl || avatarUrl(author.fullName)}" alt="${author.fullName}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
                 <span style="font-size: 0.8rem; font-weight: 600;">${author.fullName || 'Unknown'}</span>
                 <span class="text-muted" style="font-size: 0.7rem;">${formatDate(comment.createdAt)}</span>
                 ${isOwner ? `<button class="btn btn-xs btn-secondary" style="margin-left: auto;" onclick="deleteComment('${commentId}')">×</button>` : ''}
@@ -418,6 +422,17 @@ async function initEventDetailPage() {
         return;
     }
 
+    const headerEl = document.getElementById('event-header');
+    if (headerEl) {
+        headerEl.innerHTML = `
+            <div class="skeleton skeleton-title" style="height: 1.5rem; width: 70%;"></div>
+            <div class="skeleton skeleton-text" style="height: 0.75rem; width: 100%; margin-top: 0.75rem;"></div>
+            <div class="skeleton skeleton-text" style="height: 0.75rem; width: 60%; margin-top: 0.5rem;"></div>
+            <div class="skeleton skeleton-img" style="height: 240px; margin-top: 1rem; border-radius: 8px;"></div>
+            <div class="skeleton skeleton-text" style="height: 0.75rem; width: 40%; margin-top: 0.75rem;"></div>
+        `;
+    }
+
     try {
         const res = await apiClient.get(`/api/events/${eventId}`);
        
@@ -426,26 +441,29 @@ async function initEventDetailPage() {
         const header = document.getElementById('event-header');
         if (!header) return;
 
+        const creatorMeta = event.creator?.major || '';
+
         header.innerHTML = `
-            <h2 class="section-title">${event.title}</h2>
-            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
-                <img src="${event.creator?.avatarUrl || 'assets/kbu.webp'}" alt="${event.creator?.fullName}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                <div>
-                    <div style="font-weight: 600; font-size: 0.9rem;">${event.creator?.fullName || 'Unknown'}</div>
-                    <div class="text-muted" style="font-size: 0.75rem;">${event.creator?.major || ''}</div>
-                </div>
-            </div>
-            <div class="event-meta" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
+            <h1 class="event-detail-title">${event.title}</h1>
+            <p class="event-detail-description">${event.description}</p>
+            <div class="event-meta" style="margin-bottom: 0.75rem;">
                 ${event.major ? `<span class="meta-badge meta-major">${event.major}</span>` : ''}
                 <span class="meta-badge meta-category">${formatCategory(event.category)}</span>
                 <span class="meta-badge meta-date">${formatDate(event.createdAt)}</span>
+                <span class="event-detail-views">${event.viewCount || 0} views</span>
             </div>
             ${
                 event.imageUrls && event.imageUrls.length > 0
                     ? `<div class="event-images-grid">${event.imageUrls.map((url, i) => `<img class="event-card-img" src="${url}" alt="${event.title} ${i + 1}" data-image-index="${i}" style="cursor: pointer;">`).join('')}</div>`
                     : `<img class="event-card-img" src="assets/kbu.webp" alt="${event.title}">`
             }
-            <p style="font-size: 0.9rem; margin: 0.5rem 0;">${event.description}</p>
+            <div class="event-detail-creator">
+                <img src="${event.creator?.avatarUrl || avatarUrl(event.creator?.fullName)}" alt="${event.creator?.fullName || 'Unknown'}" class="event-detail-avatar">
+                <div class="event-detail-creator-info">
+                    <span class="event-detail-creator-name">${event.creator?.fullName || 'Unknown'}</span>
+                    <span class="event-detail-creator-meta">${creatorMeta}</span>
+                </div>
+            </div>
         `;
 
         const imageGrid = header.querySelector('.event-images-grid');
@@ -504,6 +522,19 @@ async function initEventDetailPage() {
                     showToast(err.message, 'error');
                 } finally {
                     saveBtn.disabled = false;
+                }
+            });
+        }
+
+        const shareBtn = document.getElementById('share-btn');
+        if (shareBtn) {
+            shareBtn.addEventListener('click', async () => {
+                const url = window.location.href.split('#')[0];
+                try {
+                    await navigator.clipboard.writeText(url);
+                    showToast('Link copied to clipboard', 'success');
+                } catch {
+                    showToast('Could not copy link', 'error');
                 }
             });
         }
@@ -861,6 +892,19 @@ async function loadComments(eventId, page = 1) {
     }
 }
 
+async function deleteComment(commentId) {
+    if (!requireAuth()) return;
+    try {
+        await apiClient.delete(`/api/comments/${commentId}`);
+        showToast('Comment deleted', 'success');
+        const params = new URLSearchParams(window.location.search);
+        const eventId = params.get('id');
+        if (eventId) loadComments(eventId, 1);
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
 // ========== PROFILE ==========
 async function loadProfile() {
     const user = getUser();
@@ -870,14 +914,107 @@ async function loadProfile() {
     if (userNameEl) userNameEl.textContent = user.fullName;
 
     const userAvatarEl = document.getElementById('user-avatar');
-    if (userAvatarEl) userAvatarEl.src = user.avatarUrl || 'assets/placeholder.svg';
+    if (userAvatarEl) userAvatarEl.src = user.avatarUrl || avatarUrl(user.fullName);
 
     const userInfoEl = document.getElementById('user-info');
     if (userInfoEl) {
         userInfoEl.innerHTML = `
-            <img src="${user.avatarUrl || 'assets/placeholder.svg'}" alt="${user.fullName}'s avatar" class="avatar">
+            <img src="${user.avatarUrl || avatarUrl(user.fullName)}" alt="${user.fullName}'s avatar" class="avatar">
             <span>${user.fullName}</span>
         `;
+    }
+}
+
+// ========== SAVED EVENTS ==========
+async function loadSavedEvents(page = 1) {
+    const container = document.getElementById('saved-list');
+    const pagination = document.getElementById('saved-pagination');
+    if (!container) return;
+
+    container.innerHTML = renderSkeletonCards(8);
+
+    try {
+        const response = await apiClient.get(`/api/events/saved?page=${page}&limit=20`);
+        const events = response.data.data;
+        const meta = response.data.meta;
+
+        if (events.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem;">
+                    <p class="text-muted">No saved events yet.</p>
+                    <a href="index.html" class="btn btn-primary">Browse events</a>
+                </div>`;
+            pagination.innerHTML = '';
+            return;
+        }
+
+        container.innerHTML = events.map((event) => renderEventCard(event, { showActions: true })).join('');
+
+        container.querySelectorAll('.event-card').forEach((card) => {
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('button')) return;
+                const id = card.dataset.eventId;
+                if (id) window.location.href = `event-detail.html?id=${id}`;
+            });
+        });
+
+        container.querySelectorAll('.upvote-btn').forEach((btn) => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (!requireAuth()) return;
+                btn.disabled = true;
+                try {
+                    const res = await apiClient.post(`/api/events/${btn.dataset.eventId}/upvote`);
+                    btn.classList.toggle('active', res.data.hasUpvoted);
+                    const countEl = btn.querySelector('span');
+                    if (countEl) countEl.textContent = res.data.totalUpvotes ?? countEl.textContent;
+                    showToast(res.data.hasUpvoted ? 'Upvoted!' : 'Upvote removed', 'success');
+                } catch (err) {
+                    showToast(err.message, 'error');
+                } finally {
+                    btn.disabled = false;
+                }
+            });
+        });
+
+        container.querySelectorAll('.save-btn').forEach((btn) => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (!requireAuth()) return;
+                btn.disabled = true;
+                try {
+                    const res = await apiClient.post(`/api/events/${btn.dataset.eventId}/save`);
+                    showToast(res.data.isSaved ? 'Saved!' : 'Unsaved', 'success');
+                    if (!res.data.isSaved) {
+                        const card = btn.closest('.event-card');
+                        if (card) card.remove();
+                    } else {
+                        btn.classList.add('active');
+                    }
+                } catch (err) {
+                    showToast(err.message, 'error');
+                } finally {
+                    btn.disabled = false;
+                }
+            });
+        });
+
+        pagination.innerHTML = renderPagination(meta.total, meta.page);
+        pagination.querySelectorAll('.pagination-btn').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const pageNum = parseInt(btn.dataset.page, 10);
+                loadSavedEvents(pageNum);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+    } catch (err) {
+        showToast(err.message || 'Failed to load saved events', 'error');
+        container.innerHTML = `
+            <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem;">
+                <p class="text-muted">Failed to load saved events.</p>
+            </div>`;
+        pagination.innerHTML = '';
     }
 }
 
@@ -906,3 +1043,4 @@ async function loadMyComments() {
 // Expose globals for inline handlers
 window.formatDate = formatDate;
 window.showToast = showToast;
+window.deleteComment = deleteComment;
