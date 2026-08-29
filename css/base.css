@@ -350,4 +350,6 @@ a:hover { color: var(--primary); }
 .meta-date {
     background: #f3f4f6;
     color: #4b5563;
+    text-transform: none;
+    letter-spacing: normal;
 }
