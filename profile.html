@@ -1,164 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KBU PULSE - Profile</title>
-  <link rel="stylesheet" href="css/reset.css">
-  <link rel="stylesheet" href="css/variables.css">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/pages.css">
-  <script src="js/navbar.js"></script>
-  <style>
-    .profile-card {
-      background: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      overflow: hidden;
-      margin-bottom: 20px;
-    }
-    /* Full-Width Cover Banner */
-    .cover-banner {
-      height: 180px;
-      background: linear-gradient(135deg, #ff6b00, #ff8c00);
-      background-size: cover;
-      background-position: center;
-      position: relative;
-    }
-    .cover-edit-btn {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: rgba(0, 0, 0, 0.6);
-      color: #ffffff;
-      border-radius: 20px;
-      padding: 6px 14px;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      backdrop-filter: blur(4px);
-      border: 1px solid rgba(255,255,255,0.3);
-      transition: background 0.2s;
-    }
-    .cover-edit-btn:hover {
-      background: rgba(0, 0, 0, 0.8);
-    }
-    /* Avatar Section */
-    .avatar-wrapper {
-      position: relative;
-      width: 110px;
-      height: 110px;
-      margin: -55px auto 10px auto;
-    }
-    .avatar-img {
-      width: 110px;
-      height: 110px;
-      border-radius: 50%;
-      border: 4px solid #ffffff;
-      object-fit: cover;
-      background: #ffffff;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
-    .avatar-edit-btn {
-      position: absolute;
-      bottom: 2px;
-      right: 2px;
-      background: #ff6b00;
-      color: #fff;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 14px;
-      border: 2px solid #ffffff;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    /* Inputs */
-    .input-field {
-      width: 100%;
-      padding: 10px 14px;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      font-size: 14px;
-      box-sizing: border-box;
-      margin-top: 6px;
-    }
-    .input-field:focus {
-      outline: none;
-      border-color: #ff6b00;
-      box-shadow: 0 0 0 3px rgba(255,107,0,0.15);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KBU PULSE - Profile</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pages.css">
+    <script src="js/navbar.js"></script>
 </head>
 <body>
-  <nav class="navbar" id="navbar"></nav>
+    <nav class="navbar" id="navbar"></nav>
 
-  <main class="content-wrapper">
-    <div id="profile-content" style="display: block; padding: 20px; max-width: 900px; margin: 0 auto;">
-      
-      <!-- Profile Header & Banner Card -->
-      <div class="profile-card">
-        <!-- Cover Background -->
-        <div id="cover-banner" class="cover-banner">
-          <label for="cover-input" class="cover-edit-btn">📷 Change Cover</label>
-          <input type="file" id="cover-input" accept="image/*" style="display: none;">
+    <main class="content-wrapper">
+        <!-- SHOWN when NOT logged in -->
+        <div id="profile-guest" style="display: none;" class="guest-message">
+            <h2 class="section-title">Please log in to view your profile</h2>
+            <a href="login.html" class="btn btn-primary">Login</a>
         </div>
 
-        <!-- Profile Avatar -->
-        <div class="avatar-wrapper">
-          <img id="profile-avatar" class="avatar-img" src="https://via.placeholder.com/110" alt="Profile Picture">
-          <label for="avatar-input" class="avatar-edit-btn" title="Change Photo">📷</label>
-          <input type="file" id="avatar-input" accept="image/*" style="display: none;">
+        <!-- SHOWN when logged in -->
+        <div id="profile-content" style="display: none;">
+             <h1 class="page-title">My Profile</h1>
+             <h4 id="user-name"></h4>
+             <p id="user-email"></p>
+             <button class="btn btn-secondary" id="logout-btn" style="margin-top: 1rem;">Logout</button>
+
+             <!-- TODO: Add tabs for different profile sections(Event, Comments) -->
+            
+             <!-- TODO: Implement tab content rendering for selected tab -->
         </div>
-
-        <!-- User Information Banner -->
-        <div style="text-align: center; padding: 0 20px 20px 20px;">
-          <h2 id="user-name" style="font-size: 22px; font-weight: 700; color: #0f172a; margin: 0;">Loading Name...</h2>
-          <p id="user-email" style="font-size: 14px; color: #64748b; margin: 4px 0 10px 0;">Loading Email...</p>
-          <p id="user-bio-display" style="font-size: 13px; color: #334155; margin: 8px auto; max-width: 500px; line-height: 1.4; font-style: italic;"></p>
-          <span style="background: #fff3eb; color: #ff6b00; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 12px; display: inline-block; margin-top: 6px;">Student Member</span>
-        </div>
-      </div>
-
-      <!-- Account Settings Card -->
-      <div class="profile-card" style="padding: 24px;">
-        <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 16px;">Edit Profile Details</h3>
-        
-        <form id="edit-profile-form">
-          <!-- Display Name -->
-          <div style="margin-bottom: 16px;">
-            <label style="font-size: 13px; font-weight: 600; color: #475569;">Display Name</label>
-            <input type="text" id="edit-name" class="input-field" placeholder="Enter full name" required>
-          </div>
-
-          <!-- Email Address -->
-          <div style="margin-bottom: 16px;">
-            <label style="font-size: 13px; font-weight: 600; color: #475569;">Email Address</label>
-            <input type="email" id="edit-email" class="input-field" placeholder="student@kbu.ac.th" required>
-          </div>
-
-          <!-- Bio -->
-          <div style="margin-bottom: 20px;">
-            <label style="font-size: 13px; font-weight: 600; color: #475569;">Bio</label>
-            <textarea id="edit-bio" class="input-field" rows="3" placeholder="Write a short intro..."></textarea>
-          </div>
-
-          <button type="submit" class="btn btn-primary" style="width: 100%; border-radius: 8px; font-weight: 600; padding: 12px; font-size: 14px;">Save Profile</button>
-        </form>
-      </div>
-
-      <!-- Logout Action -->
-      <div style="margin-top: 10px; margin-bottom: 40px;">
-        <button class="btn btn-secondary" id="logout-btn" style="width: 100%; border-radius: 8px; font-weight: 600; padding: 12px; color: #ef4444; border-color: #fca5a5; font-size: 14px;">Log Out Account</button>
-      </div>
-
-    </div>
-  </main>
-
-  <script src="js/profile.js"></script>
+    </main>
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>
