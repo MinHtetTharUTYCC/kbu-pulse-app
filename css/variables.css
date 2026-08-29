@@ -17,5 +17,6 @@
     --error: #EF4444;
     --warning: #F59E0B;
     --info: #3B82F6;
+    --nav-height: 84px;
     --transition: all 0.2s ease;
 }
