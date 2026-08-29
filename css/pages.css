@@ -161,11 +161,85 @@ body {
 }
 
 /* Page header block with title */
-.page-header { margin-bottom: 1rem; }
 .page-title {
     font-size: 1.5rem;
-    font-weight: 700;
+    font-weight: 800;
     margin-bottom: 1rem;
+}
+
+/* Home header eyebrow (index.html only) */
+.page-header {
+    margin-bottom: 1.5rem;
+}
+.page-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--primary);
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary);
+}
+.page-eyebrow-logo {
+    width: 22px;
+    height: 22px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+}
+
+/* Eyebrow is mobile-only (desktop sidebar carries the brand) */
+@media (min-width: 992px) {
+    .page-eyebrow {
+        display: none;
+    }
+}
+
+/* Home marquee ticker (index.html only) */
+.hero-ticker {
+    overflow: hidden;
+    white-space: nowrap;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--primary);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: 0.75rem 0;
+}
+.hero-ticker-track {
+    display: inline-flex;
+    align-items: center;
+    animation: hero-ticker 20s linear infinite;
+    will-change: transform;
+}
+.hero-ticker:hover .hero-ticker-track {
+    animation-play-state: paused;
+}
+.hero-ticker-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text);
+    padding-right: 3rem;
+}
+.hero-ticker-dot {
+    color: var(--primary);
+    font-size: 0.6rem;
+}
+@keyframes hero-ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .hero-ticker-track {
+        animation: none;
+        flex-wrap: wrap;
+    }
 }
 .section-title {
     font-size: 1.25rem;

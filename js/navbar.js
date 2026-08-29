@@ -33,7 +33,7 @@ function renderNavbar(currentPage = window.location.pathname) {
 
     const brandHtml = `
         <div class="nav-brand">
-            <img src="assets/kbu.webp" alt="KBU PULSE" class="nav-brand-img">
+            <img src="assets/kbu-pulse-logo.png" alt="KBU PULSE" class="nav-brand-img">
             <span class="nav-brand-name">KBU PULSE</span>
         </div>
     `;
