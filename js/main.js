@@ -272,23 +272,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // Render navbar
     if (window.navbar) window.navbar.renderNavbar(path);
 
-    // Route to page handler
-    if (path.includes('index.html') || path === '/') {
+    // Route to page handler.
+    // Matches by keyword so it works under any base path: root ("/"),
+    // GitHub Pages ("/repo/"), or extensionless static hosts ("/event-detail").
+    const isHome = path === '/' || path.endsWith('/') || path.endsWith('/index.html') || path.endsWith('/index');
+
+    if (isHome) {
         initHomePage();
-    } else if (path.includes('login.html')) {
-        initLoginPage();
-    } else if (path.includes('register.html')) {
-        initRegisterPage();
-    } else if (path.includes('event-detail.html')) {
+    } else if (path.includes('event-detail')) {
         initEventDetailPage();
-    } else if (path.includes('profile.html')) {
-        console.log('Initializing profile page');
-        initProfilePage();
-    } else if (path.includes('saved.html')) {
+    } else if (path.includes('create-event')) {
+        initCreateEventPage();
+    } else if (path.includes('saved')) {
         console.log('Initializing saved events page');
         initSavedEventsPage(); // Reuse profile page logic for saved events
-    } else if (path.includes('create-event.html')) {
-        initCreateEventPage();
+    } else if (path.includes('profile')) {
+        console.log('Initializing profile page');
+        initProfilePage();
+    } else if (path.includes('register')) {
+        initRegisterPage();
+    } else if (path.includes('login')) {
+        initLoginPage();
+    } else {
+        initHomePage(); // Unknown path -> default to home
     }
 });
 

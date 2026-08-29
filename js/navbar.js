@@ -18,10 +18,16 @@ function renderNavbar(currentPage = window.location.pathname) {
     const container = document.getElementById('navbar');
     if (!container) return;
 
+    const current =
+        currentPage === '/' || currentPage.endsWith('/') || currentPage.endsWith('index.html') || currentPage.endsWith('index')
+            ? 'home'
+            : currentPage.includes('create-event') ? 'create'
+            : currentPage.includes('saved') ? 'saved'
+            : currentPage.includes('profile') ? 'profile'
+            : '';
+
     const linksHtml = navLinks.map(link => {
-        const isActive = currentPage === '/' || currentPage.endsWith('index.html') 
-            ? link.page === 'home' 
-            : currentPage.includes(link.href);
+        const isActive = current === link.page;
 
         return `
             <a href="${link.href}" class="nav-item ${isActive ? 'active' : ''}" data-page="${link.page}">
