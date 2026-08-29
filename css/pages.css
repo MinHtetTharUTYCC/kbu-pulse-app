@@ -154,6 +154,15 @@ body {
     box-shadow: var(--shadow-md);
 }
 
+/* Bordered (non-card) form container */
+.form-box {
+    width: 100%;
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
 /* Centered "please log in" message */
 .guest-message {
     text-align: center;
@@ -258,6 +267,16 @@ body {
 /* Full-width button inside a form */
 .form-stack .btn {
     width: 100%;
+}
+
+/* Action row (Cancel + submit) */
+.form-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+.form-actions .btn {
+    flex: 1 1 50%;
+    width: auto;
 }
 
 /* Small centered text below forms */

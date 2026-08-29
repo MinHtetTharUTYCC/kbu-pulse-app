@@ -16,17 +16,13 @@
 
     <main class="content-wrapper">
 
-        <div class="detail-toolbar">
-            <button type="button" class="detail-back" onclick="goBack()">← Back</button>
-        </div>
-
         <div id="create-event-guest" style="display: none;" class="guest-message">
             <h2 class="section-title">Please log in to create an event</h2>
             <a href="login.html" class="btn btn-primary">Login</a>
         </div>
 
-        <div id="create-event-content">
-            <h2 class="page-title">Announce Event</h2>
+        <div id="create-event-content" class="form-box">
+            <!-- <h2 class="page-title">Announce Event</h2> -->
 
             <form id="create-event-form" class="form-stack" method="post" action="#">
                 <div>
@@ -70,7 +66,10 @@
                     <input type="file" id="event-images" multiple accept="image/png,image/jpeg,image/jpg,image/webp,image/heic,image/heif" class="form-input">
                     <div id="image-preview" class="image-preview"></div>
                 </div>
-                <button type="submit" class="btn btn-primary">Announce Event</button>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="goBack()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Announce Event</button>
+                </div>
             </form>
         </div>
     </main>
