@@ -1040,7 +1040,18 @@ async function loadMyComments() {
     }
 }
 
+// Navigate back when there is history, otherwise fall back to home
+function goBack() {
+    const sameOrigin = document.referrer && new URL(document.referrer).origin === location.origin;
+    if (sameOrigin || history.length > 1) {
+        history.back();
+    } else {
+        window.location.href = 'index.html';
+    }
+}
+
 // Expose globals for inline handlers
 window.formatDate = formatDate;
 window.showToast = showToast;
 window.deleteComment = deleteComment;
+window.goBack = goBack;

@@ -48,13 +48,13 @@
 /* ===== Body Padding (so content doesn't hide under fixed navbar) ===== */
 
 body {
-    padding-bottom: 64px; /* navbar height */
+    padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
 }
 
 /* Optional: larger padding on desktop if needed */
 @media (min-width: 768px) {
     body {
-        padding-bottom: 64px;
+        padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
     }
 }
 
