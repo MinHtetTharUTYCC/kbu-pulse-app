@@ -186,36 +186,37 @@ const apiClient = {
 
 // ========== RENDER HELPERS ==========
 function renderEventCard(event, { showActions = false, isOwner = false } = {}) {
+    const actions =
+        isOwner
+            ? `
+        <div class="card-actions">
+            <button class="btn-icon edit-btn" data-event-id="${event.id}" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+            <button class="btn-icon delete-btn" data-event-id="${event.id}" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"/></svg></button>
+        </div>
+    `
+            : showActions
+            ? `
+        <div class="card-actions">
+            <button class="btn-icon upvote-btn${event.hasUpvoted ? ' active' : ''}" data-event-id="${event.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span>${event.upvoteCount || 0}</span></button>
+            <button class="btn-icon save-btn${event.hasSaved ? ' active' : ''}" data-event-id="${event.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+            <button class="btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>${event.commentCount || 0}</span></button>
+        </div>
+    `
+            : '';
+
     return `
         <div class="event-card" data-event-id="${event.id}">
-            ${
-                event.imageUrls && event.imageUrls.length > 0
-                    ? `<img class="event-card-img" src="${event.imageUrls[0]}" alt="${event.title}">`
-                    : `<img class="event-card-img" src="assets/kbu.webp" alt="${event.title}">`
-            }
+            <div class="event-card-media">
+                ${
+                    event.imageUrls && event.imageUrls.length > 0
+                        ? `<img class="event-card-img" src="${event.imageUrls[0]}" alt="${event.title}">`
+                        : `<img class="event-card-img" src="assets/kbu.webp" alt="${event.title}">`
+                }
+                <span class="category-badge">${formatCategory(event.category)}</span>
+            </div>
             <h3 class="event-card-title" style="font-size: 1rem; margin: 0.5rem 0;">${event.title}</h3>
             <p class="event-card-desc" style="font-size: 0.875rem; color: var(--text-muted); margin: 0.5rem 0;">${truncate(event.description, 80)}</p>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span class="event-card-meta">${formatCategory(event.category)}</span>
-                ${
-                    isOwner
-                        ? `
-                    <div style="display: flex; gap: 0.5rem; align-items: center;">
-                        <button class="btn-icon edit-btn" data-event-id="${event.id}" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
-                        <button class="btn-icon delete-btn" data-event-id="${event.id}" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"/></svg></button>
-                    </div>
-                `
-                        : showActions
-                        ? `
-                    <div style="display: flex; gap: 0.5rem; align-items: center;">
-                        <button class="btn-icon upvote-btn${event.hasUpvoted ? ' active' : ''}" data-event-id="${event.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span>${event.upvoteCount || 0}</span></button>
-                        <button class="btn-icon save-btn${event.hasSaved ? ' active' : ''}" data-event-id="${event.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
-                        <button class="btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${event.commentCount || 0}</button>
-                    </div>
-                `
-                        : ''
-                }
-            </div>
+            ${actions}
         </div>
     `;
 }
