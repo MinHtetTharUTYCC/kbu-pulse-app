@@ -331,6 +331,47 @@ body {
     .event-grid { grid-template-columns: repeat(4, 1fr); }
 }
 
+/* ===== Event Card ===== */
+
+/* Image wrapper with the category badge overlaid on the top-right */
+.event-card-media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 8px;
+}
+.event-card-media .event-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.category-badge {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    color: var(--text);
+    background: var(--surface);
+    border-radius: 9999px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Equal-width action bar (upvote / save / comment) */
+.card-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+.card-actions .btn-icon {
+    flex: 1;
+}
+
 /* ===== Forms (auth / create event) ===== */
 
 .form-stack {
