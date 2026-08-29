@@ -14,15 +14,19 @@
 <body>
     <nav class="navbar" id="navbar"></nav>
 
-    <main class="page-center">
+    <main class="content-wrapper">
+
+        <div class="detail-toolbar">
+            <button type="button" class="detail-back" onclick="goBack()">← Back</button>
+        </div>
 
         <div id="create-event-guest" style="display: none;" class="guest-message">
             <h2 class="section-title">Please log in to create an event</h2>
             <a href="login.html" class="btn btn-primary">Login</a>
         </div>
 
-        <div id="create-event-content" class="auth-card">
-            <h2 class="auth-title">Announce Event</h2>
+        <div id="create-event-content">
+            <h2 class="page-title">Announce Event</h2>
 
             <form id="create-event-form" class="form-stack" method="post" action="#">
                 <div>
