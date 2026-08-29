@@ -875,6 +875,99 @@ async function loadProfile() {
     }
 }
 
+// ========== SAVED EVENTS ==========
+async function loadSavedEvents(page = 1) {
+    const container = document.getElementById('saved-list');
+    const pagination = document.getElementById('saved-pagination');
+    if (!container) return;
+
+    container.innerHTML = renderSkeletonCards(8);
+
+    try {
+        const response = await apiClient.get(`/api/events/saved?page=${page}&limit=20`);
+        const events = response.data.data;
+        const meta = response.data.meta;
+
+        if (events.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem;">
+                    <p class="text-muted">No saved events yet.</p>
+                    <a href="index.html" class="btn btn-primary">Browse events</a>
+                </div>`;
+            pagination.innerHTML = '';
+            return;
+        }
+
+        container.innerHTML = events.map((event) => renderEventCard(event, { showActions: true })).join('');
+
+        container.querySelectorAll('.event-card').forEach((card) => {
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('button')) return;
+                const id = card.dataset.eventId;
+                if (id) window.location.href = `event-detail.html?id=${id}`;
+            });
+        });
+
+        container.querySelectorAll('.upvote-btn').forEach((btn) => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (!requireAuth()) return;
+                btn.disabled = true;
+                try {
+                    const res = await apiClient.post(`/api/events/${btn.dataset.eventId}/upvote`);
+                    btn.classList.toggle('active', res.data.hasUpvoted);
+                    const countEl = btn.querySelector('span');
+                    if (countEl) countEl.textContent = res.data.totalUpvotes ?? countEl.textContent;
+                    showToast(res.data.hasUpvoted ? 'Upvoted!' : 'Upvote removed', 'success');
+                } catch (err) {
+                    showToast(err.message, 'error');
+                } finally {
+                    btn.disabled = false;
+                }
+            });
+        });
+
+        container.querySelectorAll('.save-btn').forEach((btn) => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (!requireAuth()) return;
+                btn.disabled = true;
+                try {
+                    const res = await apiClient.post(`/api/events/${btn.dataset.eventId}/save`);
+                    showToast(res.data.isSaved ? 'Saved!' : 'Unsaved', 'success');
+                    if (!res.data.isSaved) {
+                        const card = btn.closest('.event-card');
+                        if (card) card.remove();
+                    } else {
+                        btn.classList.add('active');
+                    }
+                } catch (err) {
+                    showToast(err.message, 'error');
+                } finally {
+                    btn.disabled = false;
+                }
+            });
+        });
+
+        pagination.innerHTML = renderPagination(meta.total, meta.page);
+        pagination.querySelectorAll('.pagination-btn').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const pageNum = parseInt(btn.dataset.page, 10);
+                loadSavedEvents(pageNum);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+    } catch (err) {
+        showToast(err.message || 'Failed to load saved events', 'error');
+        container.innerHTML = `
+            <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem;">
+                <p class="text-muted">Failed to load saved events.</p>
+            </div>`;
+        pagination.innerHTML = '';
+    }
+}
+
 async function loadMyEvents() {
     const user = getUser();
     if (!user) return;
