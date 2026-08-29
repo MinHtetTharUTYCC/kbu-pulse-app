@@ -256,7 +256,7 @@ function renderSkeletonCards(count) {
     for (let i = 0; i < count; i++) {
         html += `
             <div class="skeleton-card">
-                <div class="skeleton skeleton-img"></div>
+            <div class="skeleton skeleton-img"></div>
                 <div class="skeleton skeleton-title"></div>
                 <div class="skeleton skeleton-text"></div>
                 <div class="skeleton skeleton-meta"></div>
@@ -272,32 +272,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // Render navbar
     if (window.navbar) window.navbar.renderNavbar(path);
 
-    // Protected pages check
-    const protectedPages = ['profile.html', 'create-event.html', 'event-detail.html'];
-    const user = getUser();
-    if (protectedPages.includes(path) && !user) {
-        clearUser();
-        window.location.href = 'login.html';
-        return;
-    }
+    // Route to page handler.
+    // Matches by keyword so it works under any base path: root ("/"),
+    // GitHub Pages ("/repo/"), or extensionless static hosts ("/event-detail").
+    const isHome = path === '/' || path.endsWith('/') || path.endsWith('/index.html') || path.endsWith('/index');
 
-    // Route to page handler
-    if (path.includes('index.html') || path === '/') {
+    if (isHome) {
         initHomePage();
-    } else if (path.includes('login.html')) {
-        initLoginPage();
-    } else if (path.includes('register.html')) {
-        initRegisterPage();
-    } else if (path.includes('event-detail.html')) {
+    } else if (path.includes('event-detail')) {
         initEventDetailPage();
-    } else if (path.includes('profile.html')) {
-        console.log('Initializing profile page');
-        initProfilePage();
-    } else if (path.includes('saved.html')) {
+    } else if (path.includes('create-event')) {
+        initCreateEventPage();
+    } else if (path.includes('saved')) {
         console.log('Initializing saved events page');
         initSavedEventsPage(); // Reuse profile page logic for saved events
-    } else if (path.includes('create-event.html')) {
-        initCreateEventPage();
+    } else if (path.includes('profile')) {
+        console.log('Initializing profile page');
+        initProfilePage();
+    } else if (path.includes('register')) {
+        initRegisterPage();
+    } else if (path.includes('login')) {
+        initLoginPage();
+    } else {
+        initHomePage(); // Unknown path -> default to home
     }
 });
 
@@ -560,7 +557,7 @@ function initProfilePage() {
     loadProfile();
 
     // TODO:
-    // get tab from local storage or  from URL
+    // get tab(my events / my comments) from local storage or  from URL
     // and then show the corresponding tab content eg.loadMyEvents() or loadMyComments()
 
     // TODO: this is the example how we show profile content from API
