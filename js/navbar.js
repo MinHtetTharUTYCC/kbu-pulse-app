@@ -31,7 +31,14 @@ function renderNavbar(currentPage = window.location.pathname) {
         `;
     }).join('');
 
-    container.innerHTML = linksHtml;
+    const brandHtml = `
+        <div class="nav-brand">
+            <img src="assets/kbu.webp" alt="KBU PULSE" class="nav-brand-img">
+            <span class="nav-brand-name">KBU PULSE</span>
+        </div>
+    `;
+
+    container.innerHTML = brandHtml + linksHtml;
 }
 
 // Attach to window for global access
