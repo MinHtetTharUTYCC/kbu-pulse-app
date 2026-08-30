@@ -286,6 +286,30 @@ body {
     margin-top: 1rem;
 }
 
+/* Muted subtitle under auth titles */
+.auth-subtitle {
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+/* Small hint text inside forms */
+.form-hint {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+}
+
+/* Force-hide elements whose own display rule would override [hidden] (e.g. .btn) */
+.is-hidden { display: none !important; }
+
+/* Right-aligned utility link inside a form (e.g. Forgot password?) */
+.form-link-row {
+    text-align: right;
+    margin-top: -0.5rem;
+    font-size: 0.875rem;
+}
+
 /* Sidebar cards stacked */
 .detail-sidebar > * + * {
     margin-top: 1rem;

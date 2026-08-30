@@ -11,7 +11,7 @@
 
 ```
 kbu-pulse-app/
-├── *.html           # 8 pages (see Pages & Routing below)
+├── *.html           # 9 pages (see Pages & Routing below)
 ├── js/
 │   ├── main.js      # ALL app logic merged into ONE ES module (auth, apiClient, page handlers, rendering)
 │   ├── navbar.js    # Classic script — renders the bottom navigation (exposes window.navbar)
@@ -47,6 +47,8 @@ All pages are plain `.html` files at the repo root. `main.js` routes on page loa
 | `index.html` (home) | `initHomePage()` | Public |
 | `login.html` | `initLoginPage()` | Public |
 | `register.html` | `initRegisterPage()` | Public |
+| `forgot-password.html` | `initForgotPasswordPage()` | Public |
+| `reset-password.html` | `initResetPasswordPage()` | Public |
 | `profile.html` | `initProfilePage()` | Auth-aware (`#profile-guest`) |
 | `saved.html` | `initSavedEventsPage()` | Auth-aware (`#saved-guest`) |
 | `create-event.html` | `initCreateEventPage()` | Auth-aware (`#create-event-guest`) |
@@ -63,11 +65,17 @@ All pages are plain `.html` files at the repo root. `main.js` routes on page loa
 
 ### Login / Register flow
 
-1. On **login** or **register**, the page calls:
-   - `POST /api/auth/login` `{ email, password }` → returns the user object in `data.data`.
-   - `POST /api/auth/register` `{ fullName, email, major, password }` → returns user data.
-2. The returned user object `{ id, email, fullName, major }` is persisted with `setUser(data.data)` into **`localStorage`** under the key **`kbu_pulse_user`** (constant `AUTH_KEY` in `main.js`).
+1. **Login:** `POST /api/auth/login` `{ email, password }` → returns the user object in `data.data`, persisted with `setUser(data.data)` into **`localStorage`** under the key **`kbu_pulse_user`** (constant `AUTH_KEY` in `main.js`).
+2. **Register (OTP-verified):**
+   - `POST /api/auth/register` `{ fullName, email, major, password }` → 201 with `{ message, otpCode }` (OTP is NOT a session — nothing is persisted yet).
+   - The `register.html` card switches to an inline OTP step, then `POST /api/auth/verify-registration` `{ email, code }` → the user object `{ id, email, fullName, major }`, persisted via `setUser(user)`.
+   - Page handlers read the response defensively as `data?.data ?? data` (some auth responses are wrapped in `{ data }`, others are not).
 3. On every subsequent API call, the `apiClient` reads that stored user and automatically attaches the **`x-user-id`** header (see `apiClient._headers()` / `apiClient.post()` in `main.js`).
+
+### Forgot / Reset password flow
+
+- `forgot-password.html` → `POST /api/auth/forgot-password` `{ email }` → `{ message, otpCode }`. The email (and returned `otpCode`, when present) are stashed in `sessionStorage['kbu_pulse_reset_email']` / `['kbu_pulse_reset_code']` (constants `RESET_EMAIL_KEY` / `RESET_CODE_KEY`); the code is shown inline with a "Continue to Reset Password" button. If no `otpCode` is returned, the page redirects immediately.
+- `reset-password.html` pre-fills the email and code fields from those keys, then `POST /api/auth/reset-password` `{ email, code, newPassword }` → `{ message }`. On success both sessionStorage keys are cleared and the user is sent to `login.html`.
 
 ### Auth helpers (all in `main.js`)
 
@@ -75,14 +83,6 @@ All pages are plain `.html` files at the repo root. `main.js` routes on page loa
 - `setUser(user)` / `clearUser()` — write / remove the stored user.
 - `requireAuth()` — redirects to `login.html` and returns `false` when not logged in; otherwise `true`. Used as a guard on actions like upvote/save/comment.
 - `apiClient` — thin `fetch` wrapper (`get/post/patch/delete`) that injects `Content-Type` and the `x-user-id` header, and normalizes errors. **Always use `apiClient`, never raw `fetch`, for API calls.**
-
-### Known auth gap (flag)
-
-The **register flow in the UI is not yet aligned with the API**:
-- Per the API docs, `POST /api/auth/register` **returns an OTP** that must then be confirmed with `POST /api/auth/verify-registration`. There is designed email-OTP verification (`/api/auth/verify-registration`).
-- The current `initRegisterPage()` in `main.js` skips the OTP/verify step entirely and directly calls `setUser(data.data)` on the register response.
-
-This should be reconciled when implementing full registration (add an OTP step and call `/api/auth/verify-registration`).
 
 ## API Docs
 
