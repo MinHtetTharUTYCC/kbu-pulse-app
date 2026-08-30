@@ -15,7 +15,7 @@
     <nav class="navbar" id="navbar"></nav>
 
     <main class="page-center">
-        <div class="auth-card">
+        <div class="auth-card" id="register-card">
             <h2 class="auth-title">Create Account</h2>
 
             <form id="register-form" class="form-stack" method="post" action="#">
@@ -43,13 +43,36 @@
                 </div>
                 <div>
                     <label class="form-label">Password</label>
-                    <input type="password" name="password" class="form-input" required>
+                    <input type="password" name="password" class="form-input" required minlength="6">
+                </div>
+                <div>
+                    <label class="form-label">Confirm Password</label>
+                    <input type="password" name="confirmPassword" class="form-input" required>
                 </div>
 
                 <button type="submit" class="btn btn-primary">Register</button>
 
                 <p class="form-footer">
                     Already have an account? <a href="login.html">Login</a>
+                </p>
+            </form>
+        </div>
+
+        <div class="auth-card" id="otp-step" hidden>
+            <h2 class="auth-title">Verify Your Email</h2>
+            <p class="auth-subtitle">We sent a 6-digit code to <span id="otp-email"></span>.</p>
+
+            <form id="otp-form" class="form-stack" method="post" action="#">
+                <div>
+                    <label class="form-label">Verification Code</label>
+                    <input type="text" name="code" class="form-input" inputmode="numeric" maxlength="6" placeholder="123456" required>
+                </div>
+                <p class="form-hint" id="otp-hint" hidden>Dev hint: your code is <strong id="otp-display"></strong></p>
+
+                <button type="submit" class="btn btn-primary">Verify Email</button>
+
+                <p class="form-footer">
+                    Wrong email? <a href="#" id="back-to-form">Go back</a>
                 </p>
             </form>
         </div>
