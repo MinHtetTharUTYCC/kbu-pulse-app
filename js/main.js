@@ -495,9 +495,9 @@ function initForgotPasswordPage() {
             if (payload?.otpCode) {
                 sessionStorage.setItem(RESET_CODE_KEY, payload.otpCode);
                 otpDisplay.textContent = payload.otpCode;
-                otpHint.hidden = false;
-                continueReset.hidden = false;
-                if (sendButton) sendButton.hidden = true;
+                otpHint.classList.remove('is-hidden');
+                continueReset.classList.remove('is-hidden');
+                if (sendButton) sendButton.classList.add('is-hidden');
                 showToast(payload?.message || 'Reset code sent!', 'success');
             } else {
                 showToast(payload?.message || 'Reset code sent!', 'success');

@@ -300,6 +300,9 @@ body {
     color: var(--text-muted);
 }
 
+/* Force-hide elements whose own display rule would override [hidden] (e.g. .btn) */
+.is-hidden { display: none !important; }
+
 /* Right-aligned utility link inside a form (e.g. Forgot password?) */
 .form-link-row {
     text-align: right;
