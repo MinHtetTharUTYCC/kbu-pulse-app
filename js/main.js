@@ -294,6 +294,10 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (path.includes('profile')) {
         console.log('Initializing profile page');
         initProfilePage();
+    } else if (path.includes('forgot-password')) {
+        initForgotPasswordPage();
+    } else if (path.includes('reset-password')) {
+        initResetPasswordPage();
     } else if (path.includes('register')) {
         initRegisterPage();
     } else if (path.includes('login')) {
@@ -385,15 +389,30 @@ function initRegisterPage() {
     const form = document.getElementById('register-form');
     if (!form) return;
 
+    const registerCard = document.getElementById('register-card');
+    const otpStep = document.getElementById('otp-step');
+    const otpForm = document.getElementById('otp-form');
+    const otpEmailEl = document.getElementById('otp-email');
+    const otpHint = document.getElementById('otp-hint');
+    const otpDisplay = document.getElementById('otp-display');
+    const backToForm = document.getElementById('back-to-form');
+
+    let pendingEmail = '';
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const fullName = e.target.elements.fullName.value.trim();
         const email = e.target.elements.email.value.trim();
         const major = e.target.elements.major.value;
-        const password = e.target.elements.password.value.trim();
+        const password = e.target.elements.password.value;
+        const confirmPassword = e.target.elements.confirmPassword.value;
 
         if (!major) {
             showToast('Please select a major', 'error');
+            return;
+        }
+        if (password !== confirmPassword) {
+            showToast('Passwords do not match', 'error');
             return;
         }
 
@@ -404,9 +423,108 @@ function initRegisterPage() {
                 major,
                 password,
             });
-            setUser(data.data);
+            const payload = data?.data ?? data;
+            pendingEmail = email;
+            otpEmailEl.textContent = email;
+            if (payload?.otpCode) {
+                otpDisplay.textContent = payload.otpCode;
+                otpHint.hidden = false;
+            }
+            registerCard.hidden = true;
+            otpStep.hidden = false;
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    });
+
+    otpForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const code = e.target.elements.code.value.trim();
+
+        if (code.length !== 6) {
+            showToast('Enter the 6-digit code', 'error');
+            return;
+        }
+
+        try {
+            const data = await apiClient.post('/api/auth/verify-registration', {
+                email: pendingEmail,
+                code,
+            });
+            const user = data?.data ?? data;
+            setUser(user);
             showToast('Registration successful!', 'success');
             window.location.href = 'index.html';
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    });
+
+    if (backToForm) {
+        backToForm.addEventListener('click', (e) => {
+            e.preventDefault();
+            registerCard.hidden = false;
+            otpStep.hidden = true;
+            otpHint.hidden = true;
+            if (otpForm.elements.code) otpForm.elements.code.value = '';
+        });
+    }
+}
+
+const RESET_EMAIL_KEY = 'kbu_pulse_reset_email';
+
+function initForgotPasswordPage() {
+    const form = document.getElementById('forgot-form');
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = e.target.elements.email.value.trim();
+
+        try {
+            const data = await apiClient.post('/api/auth/forgot-password', { email });
+            const payload = data?.data ?? data;
+            sessionStorage.setItem(RESET_EMAIL_KEY, email);
+            showToast(payload?.message || 'Reset code sent!', 'success');
+            window.location.href = 'reset-password.html';
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    });
+}
+
+function initResetPasswordPage() {
+    const form = document.getElementById('reset-form');
+    if (!form) return;
+
+    const emailEl = form.elements.email;
+    if (emailEl) emailEl.value = sessionStorage.getItem(RESET_EMAIL_KEY) || '';
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = e.target.elements.email.value.trim();
+        const code = e.target.elements.code.value.trim();
+        const password = e.target.elements.password.value;
+        const confirmPassword = e.target.elements.confirmPassword.value;
+
+        if (code.length !== 6) {
+            showToast('Enter the 6-digit code', 'error');
+            return;
+        }
+        if (password !== confirmPassword) {
+            showToast('Passwords do not match', 'error');
+            return;
+        }
+
+        try {
+            await apiClient.post('/api/auth/reset-password', {
+                email,
+                code,
+                newPassword: password,
+            });
+            sessionStorage.removeItem(RESET_EMAIL_KEY);
+            showToast('Password reset! Please log in.', 'success');
+            window.location.href = 'login.html';
         } catch (err) {
             showToast(err.message, 'error');
         }
