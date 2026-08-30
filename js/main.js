@@ -472,10 +472,16 @@ function initRegisterPage() {
 }
 
 const RESET_EMAIL_KEY = 'kbu_pulse_reset_email';
+const RESET_CODE_KEY = 'kbu_pulse_reset_code';
 
 function initForgotPasswordPage() {
     const form = document.getElementById('forgot-form');
     if (!form) return;
+
+    const otpHint = document.getElementById('otp-hint');
+    const otpDisplay = document.getElementById('otp-display');
+    const continueReset = document.getElementById('continue-reset');
+    const sendButton = form.querySelector('.btn-primary');
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -485,12 +491,28 @@ function initForgotPasswordPage() {
             const data = await apiClient.post('/api/auth/forgot-password', { email });
             const payload = data?.data ?? data;
             sessionStorage.setItem(RESET_EMAIL_KEY, email);
-            showToast(payload?.message || 'Reset code sent!', 'success');
-            window.location.href = 'reset-password.html';
+
+            if (payload?.otpCode) {
+                sessionStorage.setItem(RESET_CODE_KEY, payload.otpCode);
+                otpDisplay.textContent = payload.otpCode;
+                otpHint.hidden = false;
+                continueReset.hidden = false;
+                if (sendButton) sendButton.hidden = true;
+                showToast(payload?.message || 'Reset code sent!', 'success');
+            } else {
+                showToast(payload?.message || 'Reset code sent!', 'success');
+                window.location.href = 'reset-password.html';
+            }
         } catch (err) {
             showToast(err.message, 'error');
         }
     });
+
+    if (continueReset) {
+        continueReset.addEventListener('click', () => {
+            window.location.href = 'reset-password.html';
+        });
+    }
 }
 
 function initResetPasswordPage() {
@@ -499,6 +521,8 @@ function initResetPasswordPage() {
 
     const emailEl = form.elements.email;
     if (emailEl) emailEl.value = sessionStorage.getItem(RESET_EMAIL_KEY) || '';
+    const codeEl = form.elements.code;
+    if (codeEl) codeEl.value = sessionStorage.getItem(RESET_CODE_KEY) || '';
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -523,6 +547,7 @@ function initResetPasswordPage() {
                 newPassword: password,
             });
             sessionStorage.removeItem(RESET_EMAIL_KEY);
+            sessionStorage.removeItem(RESET_CODE_KEY);
             showToast('Password reset! Please log in.', 'success');
             window.location.href = 'login.html';
         } catch (err) {
