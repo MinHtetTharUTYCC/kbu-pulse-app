@@ -74,8 +74,8 @@ All pages are plain `.html` files at the repo root. `main.js` routes on page loa
 
 ### Forgot / Reset password flow
 
-- `forgot-password.html` → `POST /api/auth/forgot-password` `{ email }` → `{ message, otpCode }`. The email is stashed in `sessionStorage['kbu_pulse_reset_email']` (constant `RESET_EMAIL_KEY`) and the page redirects to `reset-password.html`.
-- `reset-password.html` pre-fills the email field from that key, then `POST /api/auth/reset-password` `{ email, code, newPassword }` → `{ message }`. On success the sessionStorage key is cleared and the user is sent to `login.html`.
+- `forgot-password.html` → `POST /api/auth/forgot-password` `{ email }` → `{ message, otpCode }`. The email (and returned `otpCode`, when present) are stashed in `sessionStorage['kbu_pulse_reset_email']` / `['kbu_pulse_reset_code']` (constants `RESET_EMAIL_KEY` / `RESET_CODE_KEY`); the code is shown inline with a "Continue to Reset Password" button. If no `otpCode` is returned, the page redirects immediately.
+- `reset-password.html` pre-fills the email and code fields from those keys, then `POST /api/auth/reset-password` `{ email, code, newPassword }` → `{ message }`. On success both sessionStorage keys are cleared and the user is sent to `login.html`.
 
 ### Auth helpers (all in `main.js`)
 
