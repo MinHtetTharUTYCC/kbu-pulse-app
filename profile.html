@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ff751f">
+    <link rel="manifest" href="manifest.webmanifest">
     <title>KBU PULSE - Profile</title>
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/variables.css">
@@ -23,14 +25,30 @@
 
         <!-- SHOWN when logged in -->
         <div id="profile-content" style="display: none;">
-             <h1 class="page-title">My Profile</h1>
-             <h4 id="user-name"></h4>
-             <p id="user-email"></p>
-             <button class="btn btn-secondary" id="logout-btn" style="margin-top: 1rem;">Logout</button>
+            <div class="profile-header">
+                <img id="user-avatar" class="profile-avatar" alt="Profile avatar">
+                <div>
+                    <h1 class="page-title" id="user-name">My Profile</h1>
+                    <p id="user-email" class="text-muted"></p>
+                    <p id="user-major" class="text-muted"></p>
+                    <p id="user-created-at" class="text-muted"></p>
+                </div>
+                <button class="btn btn-secondary" id="logout-btn">Logout</button>
+            </div>
 
-             <!-- TODO: Add tabs for different profile sections(Event, Comments) -->
-            
-             <!-- TODO: Implement tab content rendering for selected tab -->
+            <div class="tabs" role="tablist" aria-label="Profile sections">
+                <button class="tab" id="my-events-tab" data-profile-tab="events" role="tab">My Events</button>
+                <button class="tab" id="my-comments-tab" data-profile-tab="comments" role="tab">My Comments</button>
+            </div>
+
+            <section id="my-events-section" class="profile-section" role="tabpanel">
+                <div id="my-events-list" class="event-grid"></div>
+                <div id="my-events-pagination" class="pagination-row"></div>
+            </section>
+            <section id="my-comments-section" class="profile-section" role="tabpanel">
+                <div id="my-comments-list" class="comment-list"></div>
+                <div id="my-comments-pagination" class="pagination-row"></div>
+            </section>
         </div>
     </main>
     <script type="module" src="js/main.js"></script>

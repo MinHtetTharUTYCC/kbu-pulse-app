@@ -89,7 +89,7 @@ All pages are plain `.html` files at the repo root. `main.js` routes on page loa
 The full, authoritative API reference is the **Swagger UI** served by the backend:
 
 - **Swagger UI:** <https://kbu-pulse-api-1.onrender.com/api/docs>
-- **Raw OpenAPI spec:** <https://kbu-pulse-api-1.onrender.com/api/docs/swagger-ui-init.js>
+- **Json OpenAPI spec:** <https://kbu-pulse-api-1.onrender.com/api/docs/json>
 
 Refer to Swagger for exact request/response shapes, DTOs, filters, validation rules, and status codes. A few shared conventions to know up front:
 
