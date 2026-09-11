@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ff751f">
+    <link rel="manifest" href="manifest.webmanifest">
     <title>KBU PULSE - Event Detail</title>
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/variables.css">
@@ -24,17 +26,20 @@
         </div>
         <div class="detail-sidebar">
             <div class="event-actions card" style="display: none;">
-                <div style="display: flex; gap: 0.75rem; align-items: center;">
+                <p class="event-actions-label">Show your support</p>
+                <div class="event-actions-row">
                     <button class="btn-icon upvote-btn" data-event-id="" style="flex: 1; justify-content: center; gap: 0.4rem;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span class="upvote-text">Upvotes</span></button>
                     <button class="btn-icon save-btn" data-event-id="" style="flex: 1; justify-content: center; gap: 0.4rem;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span class="save-text">Save</span></button>
                 </div>
             </div>
 
             <section class="card">
-                <h3 class="section-title">Comments <span id="comment-count" class="comment-count text-muted"></span></h3>
+                <div class="comments-heading">
+                    <div><h3 class="section-title">Comments <span id="comment-count" class="comment-count text-muted"></span></h3><p>Join the conversation around this event.</p></div>
+                </div>
 
                 <form id="comment-form" class="comment-form" style="display: none;">
-                    <textarea placeholder="Write a comment..." rows="2" required></textarea>
+                    <textarea name="content" placeholder="Write a comment..." rows="2" required></textarea>
                     <button type="submit" class="btn btn-primary">Post Comment</button>
                 </form>
 
