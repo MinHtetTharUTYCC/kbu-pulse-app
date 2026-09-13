@@ -1132,7 +1132,7 @@ async function loadComments(eventId, page = 1) {
                 if (!requireAuth()) return;
                 const commentId = btn.dataset.commentId;
                 try {
-                    const res = await apiClient.post(`/api/events/${eventId}/comments/${commentId}/like`);
+                    const res = await apiClient.post(`/api/comments/${commentId}/like`);
                     const countSpan = btn.querySelector('span');
                     if (res.data) {
                         btn.classList.toggle('active', res.data.hasLiked);
