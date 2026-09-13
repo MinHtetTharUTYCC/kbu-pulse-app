@@ -60,7 +60,7 @@ There is no JWT/token auth. The API authenticates requests via an **`x-user-id` 
 The authoritative API reference is the backend's Swagger UI:
 
 - Swagger UI: <https://kbu-pulse-api-1.onrender.com/api/docs>
-- Raw OpenAPI spec: <https://kbu-pulse-api-1.onrender.com/api/docs/swagger-ui-init.js>
+- Json OpenAPI spec: <https://kbu-pulse-api-1.onrender.com/api/docs/json>
 
 Shorthand conventions:
 
