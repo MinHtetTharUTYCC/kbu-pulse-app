@@ -163,6 +163,16 @@ body {
     border-radius: var(--radius);
 }
 
+#create-event-content {
+    padding-top: 2.25rem;
+}
+
+@media (min-width: 992px) {
+    #create-event-content {
+        padding-top: 3.5rem;
+    }
+}
+
 /* Centered "please log in" message */
 .guest-message {
     text-align: center;
@@ -616,4 +626,17 @@ body {
 }
 @media (min-width: 640px) {
     .group-members { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+}
+
+@media (max-width: 639.98px) {
+    .group-members {
+        display: flex;
+        overflow-x: auto;
+        padding: 0.15rem 0.1rem 0.5rem;
+        scrollbar-width: thin;
+    }
+
+    .group-member {
+        flex: 0 0 72px;
+    }
 }
